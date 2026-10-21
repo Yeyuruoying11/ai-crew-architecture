@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 战队指挥部</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&family=JetBrains+Mono:wght@700&display=swap">
+<style>
+/* Layout: 漫画分镜——天空背景上一块粗描边的"指挥台"舞台格，右侧是工序清单格，下方是角色名册。单一卡通世界，不跟随深色模式。 */
+:root{
+  color-scheme: light;
+  --sky:#9fdcff; --sky-2:#e3f5ff;
+  --ink:#1d1b33; --paper:#fffdf6; --paper-2:#f1f4ff;
+  --claude:#ff8a5b; --claude-2:#ffb995; --claude-3:#e3683a;
+  --codex:#3fd3a2; --codex-2:#b8f3df;
+  --deep:#5b84ff; --deep-2:#c9d7ff;
+  --sun:#ffd23f; --pink:#ff7aa8; --muted:#5d5a7a;
+  --f-display:"ZCOOL KuaiLe","Baloo 2","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --line:3px solid var(--ink);
+  --pop:6px 6px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html{background:var(--sky)}
+body{
+  margin:0;min-height:100%;
+  background:linear-gradient(180deg,var(--sky) 0%,var(--sky-2) 70%,var(--sky-2) 100%);
+  color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  overflow-x:hidden;
+}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 40px;position:relative}
+
+/* clouds */
+.clouds{position:absolute;inset:0 0 auto 0;height:220px;pointer-events:none;z-index:0}
+.cloud{position:absolute;width:120px;height:40px;background:#fff;border:var(--line);border-radius:40px;opacity:.95}
+.cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border:var(--line);border-bottom:0;border-radius:50% 50% 0 0}
+.cloud::before{width:54px;height:30px;left:18px;top:-24px}
+.cloud::after{width:40px;height:24px;left:60px;top:-18px}
+.c1{top:16px;left:2%}.c2{top:90px;right:4%;transform:scale(.8)}.c3{top:10px;right:30%;transform:scale(.6)}
+@media (prefers-reduced-motion:no-preference){
+  .c1{animation:drift 26s ease-in-out infinite alternate}
+  .c2{animation:drift 32s ease-in-out infinite alternate-reverse}
+  .c3{animation:drift 22s ease-in-out infinite alternate}
+}
+@keyframes drift{to{translate:40px 0}}
+
+/* hero */
+.hero{position:relative;z-index:1;display:grid;gap:14px;justify-items:start}
+.badge{font-family:var(--f-display);font-size:15px;background:var(--sun);border:var(--line);border-radius:999px;padding:2px 14px;box-shadow:3px 3px 0 var(--ink);transform:rotate(-2deg)}
+h1{
+  font-family:var(--f-display);font-weight:400;margin:0;
+  font-size:clamp(40px,8vw,84px);line-height:1.05;letter-spacing:.02em;text-wrap:balance;
+  color:#fff;
+  -webkit-text-stroke:3px var(--ink);paint-order:stroke fill;
+  text-shadow:5px 5px 0 var(--ink);
+}
+h1 .hl{color:var(--claude)}
+.lede{margin:0;font-size:17px;max-width:38em;font-weight:700}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:4px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab,.play{
+  font-family:var(--f-display);font-size:18px;color:var(--ink);cursor:pointer;
+  background:var(--paper);border:var(--line);border-radius:14px;padding:6px 16px;
+  box-shadow:4px 4px 0 var(--ink);transition:transform .12s,box-shadow .12s;
+}
+.tab:hover,.play:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.tab:active,.play:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.tab[aria-selected="true"]{background:var(--claude);color:#fff;-webkit-text-stroke:0}
+.play{background:var(--sun)}
+button:focus-visible{outline:3px dashed var(--pink);outline-offset:3px}
+
+/* board */
+.board{position:relative;z-index:1;display:grid;gap:22px;margin-top:26px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.board{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start}}
+.panel{background:var(--paper);border:var(--line);border-radius:22px;box-shadow:var(--pop);min-width:0}
+.stage{padding:10px;background:
+  radial-gradient(circle at 1px 1px,#cfd6ee 1.2px,transparent 1.6px) 0 0/18px 18px,var(--paper)}
+.stage svg{display:block;width:100%;height:auto}
+.stage-cap{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:4px 8px 2px;font-size:13px;color:var(--muted)}
+.legend{display:flex;gap:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:18px;border-top:3px dashed var(--ink);vertical-align:middle;margin-right:4px}
+.legend i.hot{border-top:4px solid var(--claude)}
+
+.side{padding:18px;display:grid;gap:14px}
+.now{background:var(--paper-2);border:var(--line);border-radius:16px;padding:12px 14px;min-height:118px}
+.now-k{font-family:var(--f-display);font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.now-t{font-family:var(--f-display);font-size:24px;margin:2px 0 4px;line-height:1.25}
+.now-d{margin:0;font-size:14.5px}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:s}
+.step{
+  width:100%;text-align:left;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;
+  font:inherit;color:inherit;background:transparent;border:2px solid transparent;border-radius:12px;padding:6px 8px;cursor:pointer;
+}
+.step:hover{background:var(--paper-2)}
+.step .n{width:30px;height:30px;border:var(--line);border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-size:16px;background:#fff;font-variant-numeric:tabular-nums}
+.step .who{font-size:12.5px;color:var(--muted);display:block}
+.step b{font-weight:700}
+.step.on{border-color:var(--ink);background:#fff3c4}
+.step.on .n{background:var(--claude);color:#fff}
+.step.done .n{background:var(--codex-2)}
+
+/* roster */
+.roster{position:relative;z-index:1;margin-top:34px}
+.roster h2{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0 0 14px}
+.cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{padding:16px;border:var(--line);border-radius:18px;box-shadow:4px 4px 0 var(--ink);background:var(--paper);display:grid;gap:6px;align-content:start}
+.card h3{font-family:var(--f-display);font-weight:400;font-size:22px;margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card p{margin:0;font-size:14px}
+.chip{font-family:var(--f-body);font-size:12px;font-weight:700;border:2px solid var(--ink);border-radius:999px;padding:0 9px;background:#fff}
+.k-claude{background:#fff1ea}.k-claude .chip{background:var(--claude);color:#fff}
+.k-sub{background:#fff8e0}.k-sub .chip{background:var(--sun)}
+.k-codex{background:#e8fbf4}.k-codex .chip{background:var(--codex)}
+.k-deep{background:#eef2ff;border-style:dashed}.k-deep .chip{background:var(--deep-2)}
+.card ul{margin:2px 0 0;padding-left:1.1em;font-size:13.5px}
+
+footer{position:relative;z-index:1;margin-top:30px;font-size:13px;color:var(--muted)}
+
+/* ---- SVG scene ---- */
+.scene text{font-family:var(--f-display)}
+.link{fill:none;stroke:var(--ink);stroke-width:3;stroke-dasharray:8 8;stroke-linecap:round;opacity:.55}
+.link.hot{stroke:var(--claude);stroke-width:6;stroke-dasharray:none;opacity:1}
+.link.sleep{opacity:.25}
+.actor{cursor:pointer}
+.bob,.gear,.zzz,.waves,.cursor{transform-box:fill-box;transform-origin:center}
+.gear{opacity:0;transition:opacity .2s}
+.actor.busy .gear{opacity:1}
+.waves{opacity:0}
+.actor.talk .waves{opacity:1}
+.plate rect{fill:#fff;stroke:var(--ink);stroke-width:3}
+.plate text{font-size:17px;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.bubble{opacity:0;transition:opacity .15s}
+.bubble.show{opacity:1}
+.bubble rect,.bubble path{fill:#fff;stroke:var(--ink);stroke-width:3;stroke-linejoin:round}
+.bubble text{font-size:18px;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+#packet{opacity:0}
+#packet.fly{opacity:1}
+@media (prefers-reduced-motion:no-preference){
+  .bob{animation:bob 2.4s ease-in-out infinite}
+  #a-sub .bob{animation-delay:-.6s}#a-codex .bob{animation-delay:-1.2s}#a-user .bob{animation-delay:-1.8s}
+  #a-deep .bob{animation:breathe 4s ease-in-out infinite}
+  .actor.busy .bob{animation:shake .22s linear infinite}
+  .actor.talk .bob{animation:pop .5s ease-out 1}
+  .gear{animation:spin 1.2s linear infinite}
+  .zzz{animation:zz 3s ease-in-out infinite}
+  .cursor{animation:blink 1s steps(1) infinite}
+  .link{animation:march 1.4s linear infinite}
+  .link.hot{animation:none}
+  .bubble.show{animation:bubblein .25s ease-out}
+}
+@keyframes bob{50%{transform:translateY(-6px)}}
+@keyframes breathe{50%{transform:scale(1.03,.97)}}
+@keyframes shake{25%{transform:translate(-2px,1px) rotate(-2deg)}75%{transform:translate(2px,-1px) rotate(2deg)}}
+@keyframes pop{30%{transform:scale(1.08)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes zz{0%{transform:translate(0,4px);opacity:.3}50%{opacity:1}100%{transform:translate(6px,-8px);opacity:.3}}
+@keyframes blink{50%{opacity:0}}
+@keyframes march{to{stroke-dashoffset:-32}}
+@keyframes bubblein{from{transform:translateY(6px)}}
+.bubble{transform-box:fill-box;transform-origin:bottom center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="clouds" aria-hidden="true"><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div></div>
+
+  <header class="hero">
+    <span class="badge">我的 AI 工作流 · 架构图</span>
+    <h1><span class="hl">老大 Claude</span> 发话，<br>全员开工！</h1>
+    <p class="lede">Claude 当总指挥：拆任务、派活、审结果。子 Agent 小队负责调研和测试，GPT Codex 负责写代码，DeepSeek 在一旁待命。</p>
+    <div class="controls">
+      <div class="tabs" role="tablist" aria-label="选择工作流">
+        <button class="tab" role="tab" id="tab-web" aria-selected="true" data-flow="web">网页开发</button>
+        <button class="tab" role="tab" id="tab-bench" aria-selected="false" data-flow="bench">Benchmark Task 制作</button>
+      </div>
+      <button class="play" id="play" aria-pressed="true">暂停</button>
+    </div>
+  </header>
+
+  <main class="board">
+    <section class="panel stage" aria-label="架构动画">
+      <svg class="scene" id="scene" viewBox="0 0 640 610" role="img" aria-label="你把需求交给 Claude，Claude 把任务分派给子 Agent 小队、GPT Codex 和 DeepSeek，结果再交回 Claude">
+        <!-- links -->
+        <path id="l-user" class="link" d="M150,150 Q240,160 280,205"/>
+        <path id="l-sub" class="link" d="M290,315 Q200,360 150,425"/>
+        <path id="l-codex" class="link" d="M340,345 Q346,380 340,408"/>
+        <path id="l-deep" class="link sleep" d="M392,315 Q480,360 520,425"/>
+
+        <!-- USER -->
+        <g class="actor" id="a-user" transform="translate(120,118)">
+          <g class="bob">
+            <ellipse cy="52" rx="34" ry="7" fill="rgba(29,27,51,.15)"/>
+            <rect x="-26" y="4" width="52" height="44" rx="18" fill="var(--pink)" stroke="var(--ink)" stroke-width="4"/>
+            <circle cy="-22" r="24" fill="#ffe0c2" stroke="var(--ink)" stroke-width="4"/>
+            <path d="M-25,-24 Q-24,-50 0,-48 Q25,-50 25,-22 Q12,-34 -2,-30 Q-14,-36 -25,-24Z" fill="var(--ink)"/>
+            <circle cx="-8" cy="-18" r="3.2" fill="var(--ink)"/><circle cx="8" cy="-18" r="3.2" fill="var(--ink)"/>
+            <path d="M-7,-8 Q0,-2 7,-8" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+            <rect x="-32" y="22" width="64" height="26" rx="5" fill="#e4eaf7" stroke="var(--ink)" stroke-width="4"/>
+            <circle cy="35" r="4" fill="var(--claude)"/>
+          </g>
+          <g class="gear" transform="translate(34,-40)"><circle r="9" fill="none" stroke="var(--ink)" stroke-width="7" stroke-dasharray="4 3"/><circle r="5" fill="var(--sun)" stroke="var(--ink)" stroke-width="2"/></g>
+          <g class="plate" transform="translate(0,74)"><rect x="-26" y="-14" width="52" height="28" rx="14"/><text>你</text></g>
+        </g>
+
+        <!-- CLAUDE -->
+        <g class="actor" id="a-claude" transform="translate(340,258)">
+          <g class="bob">
+            <ellipse cy="78" rx="60" ry="10" fill="rgba(29,27,51,.15)"/>
+            <ellipse cx="-24" cy="66" rx="18" ry="11" fill="var(--claude-3)" stroke="var(--ink)" stroke-width="4"/>
+            <ellipse cx="24" cy="66" rx="18" ry="11" fill="var(--claude-3)" stroke="var(--ink)" stroke-width="4"/>
+            <!-- pointing arm -->
+            <path d="M-56,-2 Q-80,-12 -88,-34" fill="none" stroke="var(--ink)" stroke-width="15" stroke-linecap="round"/>
+            <path d="M-56,-2 Q-80,-12 -88,-34" fill="none" stroke="var(--claude)" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="-89" cy="-37" r="9" fill="var(--claude)" stroke="var(--ink)" stroke-width="4"/>
+            <circle r="62" fill="var(--claude)" stroke="var(--ink)" stroke-width="5"/>
+            <ellipse cx="-22" cy="-24" rx="16" ry="9" fill="#fff" opacity=".35"/>
+            <ellipse cx="-20" cy="-4" rx="10" ry="13" fill="#fff" stroke="var(--ink)" stroke-width="3"/>
+            <ellipse cx="20" cy="-4" rx="10" ry="13" fill="#fff" stroke="var(--ink)" stroke-width="3"/>
+            <circle cx="-17" cy="-1" r="5.5" fill="var(--ink)"/><circle cx="23" cy="-1" r="5.5" fill="var(--ink)"/>
+            <path d="M-33,-24 L-10,-19 M33,-24 L10,-19" stroke="var(--ink)" stroke-width="4.5" stroke-linecap="round"/>
+            <ellipse cx="-38" cy="16" rx="8" ry="5" fill="var(--pink)" opacity=".75"/>
+            <ellipse cx="38" cy="16" rx="8" ry="5" fill="var(--pink)" opacity=".75"/>
+            <path d="M-15,17 Q0,36 15,17 Z" fill="#8a2c1a" stroke="var(--ink)" stroke-width="3.5" stroke-linejoin="round"/>
+            <!-- captain hat -->
+            <path d="M-42,-46 Q-48,-90 0,-92 Q48,-90 42,-46 Q0,-34 -42,-46Z" fill="#fff" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M-42,-50 Q0,-38 42,-50 L43,-58 Q0,-46 -43,-58Z" fill="var(--ink)"/>
+            <path d="M-52,-46 Q0,-28 52,-46 L48,-36 Q0,-20 -48,-36Z" fill="var(--ink)"/>
+            <path d="M0,-82 L4,-73 L13,-72 L6,-66 L8,-57 L0,-62 L-8,-57 L-6,-66 L-13,-72 L-4,-73Z" fill="var(--sun)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- megaphone -->
+            <g transform="translate(58,6) rotate(-22)">
+              <path d="M0,-9 L44,-26 L44,26 L0,9Z" fill="var(--sun)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+              <rect x="-10" y="-11" width="12" height="22" rx="4" fill="var(--claude-3)" stroke="var(--ink)" stroke-width="4"/>
+              <rect x="40" y="-28" width="9" height="56" rx="4" fill="#fff" stroke="var(--ink)" stroke-width="4"/>
+              <g class="waves" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round">
+                <path d="M60,-18 Q68,0 60,18"/><path d="M72,-28 Q84,0 72,28"/>
+              </g>
+            </g>
+            <circle cx="56" cy="14" r="9" fill="var(--claude)" stroke="var(--ink)" stroke-width="4"/>
+          </g>
+          <g class="gear" transform="translate(-58,-80)"><circle r="11" fill="none" stroke="var(--ink)" stroke-width="8" stroke-dasharray="5 3.6"/><circle r="6" fill="var(--sun)" stroke="var(--ink)" stroke-width="2.5"/></g>
+          <g class="plate" transform="translate(0,104)"><rect x="-74" y="-15" width="148" height="30" rx="15"/><text>Claude · 总指挥</text></g>
+        </g>
+
+        <!-- SUB-AGENTS -->
+        <g class="actor" id="a-sub" transform="translate(125,478)">
+          <g class="bob">
+            <ellipse cy="34" rx="78" ry="8" fill="rgba(29,27,51,.15)"/>
+            <g transform="translate(-48,6)">
+              <circle r="24" fill="var(--claude-2)" stroke="var(--ink)" stroke-width="4"/>
+              <circle cx="-7" cy="2" r="3.2" fill="var(--ink)"/><circle cx="7" cy="2" r="3.2" fill="var(--ink)"/>
+              <path d="M-5,11 Q0,15 5,11" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M-20,-10 Q-20,-32 0,-32 Q20,-32 20,-10Z" fill="var(--sun)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M-26,-10 H26" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+            </g>
+            <g transform="translate(0,-4)">
+              <circle r="26" fill="var(--claude-2)" stroke="var(--ink)" stroke-width="4"/>
+              <circle cx="-8" cy="2" r="3.4" fill="var(--ink)"/><circle cx="8" cy="2" r="3.4" fill="var(--ink)"/>
+              <path d="M-6,12 Q0,17 6,12" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M-22,-11 Q-22,-35 0,-35 Q22,-35 22,-11Z" fill="var(--sun)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M-28,-11 H28" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+              <!-- magnifier -->
+              <g transform="translate(24,14)"><path d="M6,6 L16,16" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/><circle r="9" fill="#d9f3ff" stroke="var(--ink)" stroke-width="4"/></g>
+            </g>
+            <g transform="translate(48,6)">
+              <circle r="24" fill="var(--claude-2)" stroke="var(--ink)" stroke-width="4"/>
+              <circle cx="-7" cy="2" r="3.2" fill="var(--ink)"/><circle cx="7" cy="2" r="3.2" fill="var(--ink)"/>
+              <path d="M-5,11 Q0,15 5,11" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M-20,-10 Q-20,-32 0,-32 Q20,-32 20,-10Z" fill="var(--sun)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M-26,-10 H26" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+            </g>
+          </g>
+          <g class="gear" transform="translate(76,-30)"><circle r="9" fill="none" stroke="var(--ink)" stroke-width="7" stroke-dasharray="4 3"/><circle r="5" fill="var(--sun)" stroke="var(--ink)" stroke-width="2"/></g>
+          <g class="plate" transform="translate(0,62)"><rect x="-62" y="-14" width="124" height="28" rx="14"/><text>子 Agent 小队</text></g>
+        </g>
+
+        <!-- CODEX -->
+        <g class="actor" id="a-codex" transform="translate(340,486)">
+          <g class="bob">
+            <ellipse cy="60" rx="46" ry="8" fill="rgba(29,27,51,.15)"/>
+            <rect x="-24" y="40" width="14" height="18" rx="4" fill="var(--codex)" stroke="var(--ink)" stroke-width="4"/>
+            <rect x="10" y="40" width="14" height="18" rx="4" fill="var(--codex)" stroke="var(--ink)" stroke-width="4"/>
+            <rect x="-52" y="6" width="16" height="32" rx="8" fill="var(--codex)" stroke="var(--ink)" stroke-width="4"/>
+            <rect x="36" y="6" width="16" height="32" rx="8" fill="var(--codex)" stroke="var(--ink)" stroke-width="4"/>
+            <rect x="-36" y="0" width="72" height="46" rx="14" fill="var(--codex)" stroke="var(--ink)" stroke-width="4"/>
+            <circle cx="-14" cy="22" r="5" fill="var(--sun)" stroke="var(--ink)" stroke-width="2.5"/>
+            <circle cx="0" cy="22" r="5" fill="var(--pink)" stroke="var(--ink)" stroke-width="2.5"/>
+            <circle cx="14" cy="22" r="5" fill="#fff" stroke="var(--ink)" stroke-width="2.5"/>
+            <line x1="0" y1="-60" x2="0" y2="-76" stroke="var(--ink)" stroke-width="4"/>
+            <circle cy="-80" r="7" fill="var(--sun)" stroke="var(--ink)" stroke-width="3.5"/>
+            <rect x="-42" y="-62" width="84" height="58" rx="16" fill="var(--codex)" stroke="var(--ink)" stroke-width="4"/>
+            <rect x="-32" y="-53" width="64" height="40" rx="9" fill="var(--ink)"/>
+            <text x="-22" y="-31" font-size="20" fill="var(--codex)" style="font-family:var(--f-mono)" dominant-baseline="central">&gt;</text>
+            <rect class="cursor" x="-6" y="-26" width="16" height="5" fill="var(--codex)"/>
+          </g>
+          <g class="gear" transform="translate(56,-58)"><circle r="10" fill="none" stroke="var(--ink)" stroke-width="7" stroke-dasharray="4.4 3.4"/><circle r="5.5" fill="var(--sun)" stroke="var(--ink)" stroke-width="2"/></g>
+          <g class="plate" transform="translate(0,86)"><rect x="-56" y="-14" width="112" height="28" rx="14"/><text>GPT Codex</text></g>
+        </g>
+
+        <!-- DEEPSEEK -->
+        <g class="actor" id="a-deep" transform="translate(530,478)" opacity=".85">
+          <g class="bob">
+            <ellipse cy="44" rx="56" ry="8" fill="rgba(29,27,51,.15)"/>
+            <path d="M48,4 Q66,-6 74,-28 Q82,-8 68,6 Q84,8 88,24 Q70,20 52,16Z" fill="var(--deep)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M-56,10 Q-56,-36 0,-36 Q48,-36 56,2 Q60,32 20,36 L-30,36 Q-56,34 -56,10Z" fill="var(--deep)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M-50,20 Q-20,34 30,30 Q10,38 -30,36 Q-48,32 -50,20Z" fill="var(--deep-2)"/>
+            <path d="M-34,-4 Q-27,3 -20,-4" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
+            <ellipse cx="-40" cy="10" rx="7" ry="4" fill="var(--pink)" opacity=".6"/>
+            <path d="M-46,18 Q-40,22 -34,18" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+            <!-- sleep cap -->
+            <path d="M-6,-34 Q10,-66 44,-50 Q20,-48 22,-30Z" fill="var(--sun)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+            <circle cx="46" cy="-50" r="7" fill="#fff" stroke="var(--ink)" stroke-width="3"/>
+          </g>
+          <g class="zzz" transform="translate(-36,-60)"><text font-size="22" fill="var(--ink)">Z<tspan font-size="16" dy="-8">z</tspan><tspan font-size="12" dy="-6">z</tspan></text></g>
+          <g class="plate" transform="translate(0,62)"><rect x="-70" y="-14" width="140" height="28" rx="14" style="stroke-dasharray:6 4"/><text>DeepSeek · 待命</text></g>
+        </g>
+
+        <!-- packet (envelope) -->
+        <g id="packet">
+          <rect x="-16" y="-11" width="32" height="22" rx="3" fill="#fff" stroke="var(--ink)" stroke-width="3"/>
+          <path d="M-16,-11 L0,3 L16,-11" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="0" cy="3" r="4" fill="var(--claude)" stroke="var(--ink)" stroke-width="2"/>
+        </g>
+        <g id="bubbles"></g>
+      </svg>
+      <div class="stage-cap">
+        <span class="legend"><span><i></i>指挥链路</span><span><i class="hot"></i>正在传任务</span></span>
+        <span>点 DeepSeek 叫醒它试试</span>
+      </div>
+    </section>
+
+    <aside class="panel side" aria-label="工序">
+      <div class="now" aria-live="polite">
+        <div class="now-k"><span id="now-flow">网页开发</span><span id="now-n">第 1 步</span></div>
+        <div class="now-t" id="now-t">你提需求</div>
+        <p class="now-d" id="now-d"></p>
+      </div>
+      <ol class="steps" id="steps"></ol>
+    </aside>
+  </main>
+
+  <section class="roster" aria-label="队员名册">
+    <h2>队员名册</h2>
+    <div class="cards">
+      <article class="card k-claude">
+        <h3>Claude <span class="chip">总指挥</span></h3>
+        <p>接需求、定方案、拆任务、派活，最后审查和整合所有结果。</p>
+        <ul><li>架构与规格设计</li><li>代码审查、质检</li><li>推送 GitHub、交付</li></ul>
+      </article>
+      <article class="card k-sub">
+        <h3>子 Agent 小队 <span class="chip">在岗</span></h3>
+        <p>Claude 分身出来的小弟，可以同时开好几个，各干一块。</p>
+        <ul><li>翻代码库、查文档</li><li>并行起草内容</li><li>没看过答案的独立盲测</li></ul>
+      </article>
+      <article class="card k-codex">
+        <h3>GPT Codex <span class="chip">在岗</span></h3>
+        <p>写代码的主力，按 Claude 给的规格动手实现。</p>
+        <ul><li>功能和页面实现</li><li>参考解答、测试脚本</li><li>运行环境搭建</li></ul>
+      </article>
+      <article class="card k-deep">
+        <h3>DeepSeek <span class="chip">待命</span></h3>
+        <p>还没接入当前流程。接入后可以分担一部分子任务。</p>
+      </article>
+    </div>
+  </section>
+
+  <footer>按我自己的工作方式绘制：目前在岗的是 Claude、它的子 Agent 和 GPT Codex。</footer>
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var NS = 'http://www.w3.org/2000/svg';
+  var actors = {
+    user:  {pos:[120,118], by:-82},
+    claude:{pos:[340,258], by:-118},
+    sub:   {pos:[125,478], by:-56},
+    codex: {pos:[340,486], by:-104},
+    deep:  {pos:[530,478], by:-70}
+  };
+  var names = {user:'你',claude:'Claude',sub:'子 Agent',codex:'Codex',deep:'DeepSeek'};
+  var ack = {user:'好耶！',claude:'收到！',sub:'收到！',codex:'开干！',deep:'嗯…？'};
+  // link id + whether link runs from Claude outward
+  var links = {user:{id:'l-user',toClaude:true}, sub:{id:'l-sub'}, codex:{id:'l-codex'}, deep:{id:'l-deep'}};
+
+  var flows = {
+    web:{name:'网页开发',steps:[
+      {f:'user',t:'claude',s:'做个网站！',title:'你提需求',d:'你把想要的页面、功能和风格告诉 Claude。'},
+      {f:'claude',t:'claude',s:'我来拆！',title:'Claude 拆解任务',d:'定技术方案，把活拆成能并行的小块，安排好谁干什么。'},
+      {f:'claude',t:'sub',s:'去查资料！',title:'子 Agent 调研',d:'子 Agent 并行去翻代码库、查文档和库的版本，把结论带回来。'},
+      {f:'claude',t:'codex',s:'写代码！',title:'Codex 写功能',d:'GPT Codex 按 Claude 给的规格实现页面和功能逻辑。'},
+      {f:'codex',t:'claude',s:'交货！',title:'代码交回审查',d:'Codex 交回代码，Claude 逐段审查、合并到一起。'},
+      {f:'claude',t:'sub',s:'去测试！',title:'子 Agent 测试',d:'另派一个没看过代码的子 Agent 去点页面、找 bug。'},
+      {f:'sub',t:'claude',s:'报告！',title:'测试报告回传',d:'子 Agent 把发现的问题报给 Claude，Claude 修掉。'},
+      {f:'claude',t:'user',s:'上线啦！',title:'整合并交付',d:'Claude 推到 GitHub、开好网页，把链接交给你。'}
+    ]},
+    bench:{name:'Benchmark Task 制作',steps:[
+      {f:'user',t:'claude',s:'出一批题！',title:'你定方向',d:'告诉 Claude 要测什么能力、出多少题、什么难度。'},
+      {f:'claude',t:'claude',s:'定规格！',title:'Claude 设计规格',d:'写清题目格式、输入输出、评分标准和难度梯度。'},
+      {f:'claude',t:'sub',s:'去出题！',title:'子 Agent 并行起草',d:'几个子 Agent 同时起草 task 描述和数据，各管一块。'},
+      {f:'claude',t:'codex',s:'搭环境！',title:'Codex 写解答和测试',d:'Codex 写参考解答、评测脚本和运行环境。'},
+      {f:'codex',t:'claude',s:'跑通了！',title:'参考解跑通',d:'Codex 确认参考解能通过全部测试，交回 Claude。'},
+      {f:'claude',t:'sub',s:'盲测！',title:'子 Agent 盲测',d:'派一个没看过答案的子 Agent 独立做题，看题目是否清楚、有没有能钻的空子。'},
+      {f:'sub',t:'claude',s:'有歧义！',title:'盲测结果回传',d:'子 Agent 报告做题过程，以及题目里的歧义和漏洞。'},
+      {f:'claude',t:'user',s:'打包好了！',title:'质检并打包',d:'Claude 修正题目、统一格式，打包交给你。'}
+    ]}
+  };
+
+  var flow='web', idx=0, playing=true, tok=0;
+  var $ = function(id){return document.getElementById(id)};
+  var bubblesG = $('bubbles'), packet = $('packet');
+
+  // build bubbles
+  Object.keys(actors).forEach(function(k){
+    var a=actors[k], g=document.createElementNS(NS,'g');
+    g.setAttribute('class','bubble'); g.setAttribute('transform','translate('+a.pos[0]+','+(a.pos[1]+a.by)+')');
+    var r=document.createElementNS(NS,'rect'); r.setAttribute('y',-20); r.setAttribute('height',40); r.setAttribute('rx',14);
+    var p=document.createElementNS(NS,'path'); p.setAttribute('d','M-8,18 L0,32 L8,18');
+    var cover=document.createElementNS(NS,'rect'); cover.setAttribute('x',-9); cover.setAttribute('y',14); cover.setAttribute('width',18); cover.setAttribute('height',7); cover.setAttribute('style','stroke:none;fill:#fff');
+    var t=document.createElementNS(NS,'text');
+    g.appendChild(r); g.appendChild(p); g.appendChild(cover); g.appendChild(t);
+    bubblesG.appendChild(g); a.bubble=g; a.text=t; a.rect=r; a.el=$('a-'+k);
+  });
+
+  function say(k,txt,ms){
+    var a=actors[k]; a.text.textContent=txt;
+    var w=Math.max(70, txt.length*19+30);
+    a.rect.setAttribute('x',-w/2); a.rect.setAttribute('width',w);
+    a.bubble.classList.remove('show'); void a.bubble.getBBox(); a.bubble.classList.add('show');
+    clearTimeout(a.bt); a.bt=setTimeout(function(){a.bubble.classList.remove('show')}, ms||1600);
+  }
+  function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  function clearAll(){
+    Object.keys(actors).forEach(function(k){var a=actors[k];a.el.classList.remove('busy','talk');a.bubble.classList.remove('show')});
+    Object.keys(links).forEach(function(k){$(links[k].id).classList.remove('hot')});
+    packet.classList.remove('fly');
+  }
+  function fly(path, reverse, t){
+    return new Promise(function(res){
+      var L=path.getTotalLength(), dur=reduce?1:950, t0=performance.now();
+      packet.classList.add('fly');
+      function f(now){
+        if(t!==tok){return res()}
+        var p=Math.min(1,(now-t0)/dur), e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+        var pt=path.getPointAtLength((reverse?1-e:e)*L);
+        packet.setAttribute('transform','translate('+pt.x+','+pt.y+')');
+        if(p<1) requestAnimationFrame(f); else {packet.classList.remove('fly'); res()}
+      }
+      requestAnimationFrame(f);
+    });
+  }
+
+  function render(){
+    var F=flows[flow], ol=$('steps'); ol.innerHTML='';
+    F.steps.forEach(function(s,i){
+      var li=document.createElement('li'), b=document.createElement('button');
+      b.className='step'; b.type='button';
+      var who = s.f===s.t ? names[s.f] : names[s.f]+' → '+names[s.t];
+      b.innerHTML='<span class="n">'+(i+1)+'</span><span><b></b><span class="who"></span></span>';
+      b.querySelector('b').textContent=s.title; b.querySelector('.who').textContent=who;
+      b.addEventListener('click',function(){idx=i; restart()});
+      li.appendChild(b); ol.appendChild(li);
+    });
+    $('now-flow').textContent=F.name;
+    document.querySelectorAll('.tab').forEach(function(t){t.setAttribute('aria-selected', t.dataset.flow===flow?'true':'false')});
+  }
+  function mark(i){
+    var F=flows[flow], s=F.steps[i];
+    document.querySelectorAll('.step').forEach(function(b,j){b.classList.toggle('on',j===i);b.classList.toggle('done',j<i)});
+    $('now-n').textContent='第 '+(i+1)+' 步 / 共 '+F.steps.length+' 步';
+    $('now-t').textContent=s.title; $('now-d').textContent=s.d;
+  }
+
+  async function runStep(i,t){
+    var s=flows[flow].steps[i], A=actors[s.f], B=actors[s.t];
+    clearAll(); mark(i);
+    A.el.classList.add('talk'); say(s.f, s.s, 1700);
+    await wait(650); if(t!==tok) return;
+    A.el.classList.remove('talk');
+    if(s.f===s.t){
+      A.el.classList.add('busy'); await wait(1700); if(t!==tok) return; A.el.classList.remove('busy');
+    } else {
+      var other = s.f==='claude' ? s.t : s.f, L=links[other];
+      var outward = s.f==='claude';
+      var reverse = L.toClaude ? outward : !outward;
+      var path=$(L.id); path.classList.add('hot');
+      await fly(path, reverse, t); if(t!==tok) return;
+      path.classList.remove('hot');
+      B.el.classList.add('busy'); say(s.t, ack[s.t], 1300);
+      await wait(1600); if(t!==tok) return; B.el.classList.remove('busy');
+    }
+    await wait(300);
+  }
+  async function loop(t){
+    while(t===tok){
+      if(!playing){await wait(200); continue}
+      await runStep(idx,t); if(t!==tok) return;
+      if(!playing) continue;
+      idx=(idx+1)%flows[flow].steps.length;
+      if(idx===0){await wait(1400)}
+    }
+  }
+  function restart(){tok++; clearAll(); mark(idx); loop(tok)}
+
+  document.querySelectorAll('.tab').forEach(function(b){
+    b.addEventListener('click',function(){ if(flow===b.dataset.flow) return; flow=b.dataset.flow; idx=0; render(); restart(); });
+  });
+  $('play').addEventListener('click',function(){
+    playing=!playing; this.textContent=playing?'暂停':'播放'; this.setAttribute('aria-pressed',playing);
+    if(playing) restart();
+  });
+  $('a-deep').addEventListener('click',function(){say('deep','还没接入哦… Zzz',2000)});
+  ['user','sub','codex','claude'].forEach(function(k){
+    actors[k].el.addEventListener('click',function(){say(k, ack[k], 1200)});
+  });
+
+  render(); mark(0);
+  if(document.fonts && document.fonts.ready){document.fonts.ready.then(restart)} else restart();
+})();
+</script>
+</body>
+</html>
