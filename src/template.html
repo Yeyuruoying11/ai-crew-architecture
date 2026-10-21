@@ -72,16 +72,14 @@ h1 b{font-weight:400;color:var(--claude)}
 .bubble::after{content:"";position:absolute;left:50%;bottom:-6px;width:6px;height:6px;background:#fff;border-right:2px solid var(--line);border-bottom:2px solid var(--line);transform:translateX(-50%) rotate(45deg)}
 .bubble.show{opacity:1}
 .bubble.claude{background:#ffe2d4}.bubble.claude::after{background:#ffe2d4}
-.zzz{position:absolute;font-family:var(--f-pixel);color:var(--deep);font-size:1.1em;transform:translate(-50%,-100%)}
-@media (prefers-reduced-motion:no-preference){.zzz span{display:inline-block;animation:zz 2.4s ease-in-out infinite}.zzz span:nth-child(2){animation-delay:.3s}.zzz span:nth-child(3){animation-delay:.6s}}
-@keyframes zz{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-4px);opacity:1}}
+.bubble.deep{background:#dfe6ff}.bubble.deep::after{background:#dfe6ff}
 
 .hud{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .chip{font-family:var(--f-pixel);font-size:11px;letter-spacing:.04em;padding:4px 8px 3px;background:var(--bg-2);border:2px solid var(--line);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
 .chip i{width:8px;height:8px;display:inline-block;background:var(--dim)}
 .chip.on i{background:var(--matrix);box-shadow:0 0 6px var(--matrix)}
 .chip.idle i{background:var(--amber)}
-.chip.sleep i{background:var(--deep)}
+.chip.deep i{background:var(--deep);box-shadow:0 0 6px var(--deep)}
 
 .side{display:grid;gap:14px;padding:16px}
 .now{background:var(--bg-2);border:2px solid var(--line);padding:12px 14px;min-height:122px}
@@ -102,13 +100,39 @@ h1 b{font-weight:400;color:var(--claude)}
 .roster h2{font-family:var(--f-display);font-weight:400;font-size:32px;margin:0 0 14px;text-shadow:3px 3px 0 var(--line)}
 .cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .card{background:var(--panel);border:2px solid var(--line);box-shadow:var(--shadow);padding:14px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start}
-.card.k-deep{border-style:dashed}
 .ava{width:48px;height:96px;image-rendering:pixelated;background-repeat:no-repeat;background-size:336px 288px;background-position:-48px 0;background-color:var(--bg-2);border:2px solid var(--line);box-sizing:content-box}
 .card h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:22px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .card p{margin:2px 0 6px;font-size:13.5px;color:var(--muted)}
 .card ul{margin:0;padding-left:1.1em;font-size:13px}
 .badge{font-family:var(--f-pixel);font-size:10px;letter-spacing:.05em;padding:2px 6px 1px;border:2px solid var(--line);color:#14162a}
 .b-claude{background:var(--claude)}.b-on{background:var(--matrix)}.b-deep{background:var(--deep)}
+
+/* 派活规则：由 pocket-rivals 的 tools/ai_page.py 生成，样式全部挂在 .rules 下，盖过上面 HUD 的 .chip */
+.rules{margin-top:34px;display:grid;gap:16px;min-width:0}
+.rules h2{font-family:var(--f-display);font-weight:400;font-size:32px;margin:0;text-shadow:3px 3px 0 var(--line)}
+.rules-lede{margin:-6px 0 0;max-width:46em;color:var(--muted);font-size:14px}
+.rules .ledger{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.rules .tally{background:var(--bg-2);border:2px solid var(--line);box-shadow:var(--shadow);padding:8px 12px 10px;display:grid;gap:2px;min-width:0}
+.rules .tally span{font-family:var(--f-pixel);font-size:10.5px;letter-spacing:.04em;color:var(--dim)}
+.rules .tally b{font-family:var(--f-pixel);font-weight:700;font-size:20px;line-height:1.2;color:var(--amber);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.rules .tally b.small{font-family:var(--f-body);font-size:14px;color:var(--fg)}
+.rules .rpanel{background:var(--panel);border:2px solid var(--line);box-shadow:var(--shadow);padding:14px;min-width:0}
+.rules .rpanel h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:22px}
+.rules .note{margin:2px 0 10px;font-size:13px;color:var(--muted)}
+.rules .tscroll{overflow-x:auto;border:2px solid var(--line);background:var(--bg-2)}
+.rules .rtable{width:100%;min-width:640px;border-collapse:collapse;font-size:13px;line-height:1.5}
+.rules .rtable th{font-family:var(--f-pixel);font-weight:400;font-size:10.5px;letter-spacing:.04em;color:var(--matrix);text-align:left;padding:7px 10px;background:var(--line);white-space:nowrap}
+.rules .rtable td{padding:7px 10px;border-top:2px solid var(--line);vertical-align:top}
+.rules .rtable tbody tr:nth-child(even){background:rgba(255,255,255,.025)}
+.rules .rtable td:first-child,.rules .rtable td.m:first-child+td{min-width:10em}
+.rules .rtable td.m:first-child{min-width:0}
+.rules td.why{color:var(--muted);font-size:12.5px;min-width:16em}
+.rules td.m{font-family:var(--f-pixel);font-size:11px;color:var(--fg);white-space:nowrap;font-variant-numeric:tabular-nums}
+.rules code{font-size:.92em;background:var(--line);padding:0 4px;color:var(--amber)}
+.rules .chip{display:inline-block;font-family:var(--f-pixel);font-size:10.5px;letter-spacing:.03em;line-height:1.3;padding:2px 6px 1px;border:2px solid var(--line);white-space:nowrap;color:#14162a;background:var(--dim)}
+.rules .chip.r-claude{background:var(--claude)}.rules .chip.r-deep{background:var(--deep)}.rules .chip.r-pro{background:#b48cff}
+.rules .chip.e1{background:var(--matrix)}.rules .chip.e2{background:var(--amber)}.rules .chip.e3{background:var(--claude)}.rules .chip.e4{background:var(--you)}
+.rules .chip.r-ok{background:var(--matrix)}.rules .chip.r-minor{background:var(--amber)}.rules .chip.r-bad{background:var(--you)}
 
 footer{margin-top:30px;font-size:12.5px;color:var(--dim);display:grid;gap:4px}
 footer a{color:var(--muted)}
@@ -118,7 +142,7 @@ footer a{color:var(--muted)}
   <header>
     <span class="tag"><i></i>STUDIO ONLINE · 我的 AI 工作流</span>
     <h1><b>老大 Claude</b> 的像素工作室</h1>
-    <p class="lede"><strong>Claude</strong> 坐镇主位接需求、拆任务、审结果；<strong>子 Agent</strong> 被派出去时会在工位上"刷"地出现，干完就消失；<strong>GPT Codex</strong> 守着双屏写代码；<strong>DeepSeek</strong> 在沙发上打盹待命。</p>
+    <p class="lede"><strong>Claude</strong> 坐镇主位接需求、拆任务、审结果；<strong>子 Agent</strong> 被派出去时会在工位上"刷"地出现，干完就消失；<strong>GPT Codex</strong> 守着双屏写代码；<strong>DeepSeek</strong> 接手翻译、文案、总结这类一问一答的文字活，交回的草稿由 Claude 检查后再用。</p>
     <div class="controls">
       <div role="tablist" aria-label="选择工作流" style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn" role="tab" data-flow="web" aria-selected="true">网页开发</button>
@@ -132,7 +156,7 @@ footer a{color:var(--muted)}
   <main class="board">
     <section class="frame" aria-label="像素工作室">
       <div class="screen" id="screen">
-        <canvas id="room" width="352" height="240" role="img" aria-label="像素办公室：Claude 在主位，左边是子 Agent 工位，右边是 Codex 的双屏工位，右下角沙发上是 DeepSeek，你从下方走进来"></canvas>
+        <canvas id="room" width="352" height="240" role="img" aria-label="像素办公室：Claude 在主位，左边是子 Agent 工位，右边是 Codex 的双屏工位和 DeepSeek 的工位，DeepSeek 没活时坐在右下角沙发上，你从下方走进来"></canvas>
         <div class="overlay" id="overlay"></div>
       </div>
       <div class="hud" id="hud"></div>
@@ -140,7 +164,7 @@ footer a{color:var(--muted)}
 
     <aside class="frame side" aria-label="工序">
       <div class="now" aria-live="polite">
-        <div class="now-k"><span id="now-flow">网页开发</span><span id="now-n">STEP 1/8</span></div>
+        <div class="now-k"><span id="now-flow">网页开发</span><span id="now-n">STEP 1/10</span></div>
         <div class="now-t" id="now-t">你提需求</div>
         <p class="now-d" id="now-d"></p>
       </div>
@@ -155,7 +179,7 @@ footer a{color:var(--muted)}
         <div class="ava" data-sheet="char0"></div>
         <div><h3>Claude <span class="badge b-claude">BOSS</span></h3>
           <p>坐主位。接需求、定方案、拆任务、派活，最后审查、整合、交付。</p>
-          <ul><li>架构与规格设计</li><li>代码审查、质检</li><li>推送 GitHub</li></ul></div>
+          <ul><li>架构与规格设计</li><li>按难易分活、定推理强度</li><li>代码审查、质检</li><li>推送 GitHub</li></ul></div>
       </article>
       <article class="card">
         <div class="ava" data-sheet="char0"></div>
@@ -169,16 +193,59 @@ footer a{color:var(--muted)}
           <p>双屏工位上的写代码主力，按 Claude 给的规格动手。额度用完了，10 月 27 日回来；这期间它的活由 Claude 的子 Agent 接手。</p>
           <ul><li>功能和页面实现</li><li>参考解答、评测脚本</li><li>运行环境</li></ul></div>
       </article>
-      <article class="card k-deep">
+      <article class="card">
         <div class="ava" data-sheet="deep"></div>
-        <div><h3>DeepSeek <span class="badge b-deep">STANDBY</span></h3>
-          <p>还没接入流程，先在沙发上待命。点它可以叫醒它说两句。</p></div>
+        <div><h3>DeepSeek <span class="badge b-on">ON DUTY</span></h3>
+          <p>便宜的一问一答文字活交给它，帮 Claude 省额度。它不能读仓库、改文件、跑测试，交回的都是草稿，Claude 检查后再用，每次都记一笔质量评级。</p>
+          <ul><li>翻译初稿、精简文案</li><li>总结长文档、长日志</li><li>造测试数据、格式转换</li><li>截图初筛、头脑风暴</li></ul></div>
       </article>
     </div>
   </section>
 
+  <!--AI-RULES-START-->
+  <section class="rules" aria-label="派活规则">
+    <h2>派活规则</h2>
+    <p class="rules-lede">Claude 按这几张表决定谁干什么、开多大推理强度。表格从项目仓库的 CLAUDE.md 和 DeepSeek 记录自动生成，规则一变就同步（2026-10-21）。</p>
+
+    <div class="ledger">
+      <div class="tally"><span>DeepSeek 调用</span><b>3</b></div>
+      <div class="tally"><span>token 合计</span><b>6,476</b></div>
+      <div class="tally"><span>估算花费</span><b>$0.0028</b></div>
+      <div class="tally"><span>账户余额</span><b>$4.98</b></div>
+      <div class="tally"><span>结果评级</span><b class="small">直接用 1 · 小改 2</b></div>
+    </div>
+
+    <div class="panel rpanel">
+      <h3>这类活交给谁</h3>
+      <p class="note">DeepSeek 只能一问一答，不能改文件、跑测试，它的输出都当草稿，由 Claude 检查后再用；同类活连续两次要大改，就改回 Claude。</p>
+      <div class="tscroll"><table class="rtable">
+        <thead><tr><th>任务</th><th>交给谁</th><th>DeepSeek 强度</th><th>依据</th></tr></thead>
+        <tbody><tr><td>翻译初稿（界面文字、数据、文档）</td><td><span class="chip r-deep">DeepSeek Flash</span></td><td class='m'>none</td><td class='why'>2026-10-21：架构模块 14 条英文，质量好，Claude 改了 1 处意思和 1 处英式拼写</td></tr><tr><td>精简文案、改语气、统一术语</td><td><span class="chip r-deep">DeepSeek Flash</span></td><td class='m'>none</td><td class='why'>机械改写，Claude 只看结果</td></tr><tr><td>总结长文档 / 长日志 / 长输出（先压缩再给 Claude 看）</td><td><span class="chip r-deep">DeepSeek Flash</span></td><td class='m'>none</td><td class='why'>1M 上下文；省掉 Claude 读整份的 token</td></tr><tr><td>生成测试数据、字符串表、格式转换（JSON ↔ 表格）</td><td><span class="chip r-deep">DeepSeek Flash</span></td><td class='m'>none</td><td class='why'>结果可以机械校验</td></tr><tr><td>看截图找排版问题（初筛）</td><td><span class="chip r-deep">DeepSeek Flash</span></td><td class='m'>low</td><td class='why'>Flash 能看图；Claude 只复看它标出的截图（还没试过，试后补记录）</td></tr><tr><td>给纯函数起草单元测试</td><td><span class="chip r-deep">DeepSeek Flash</span></td><td class='m'>high</td><td class='why'>Claude 负责跑测试、补漏（还没试过）</td></tr><tr><td>对 diff 做第一遍检查（错别字、明显 bug）</td><td><span class="chip r-deep">DeepSeek Flash</span></td><td class='m'>high</td><td class='why'>只做初筛，最终评审仍由 Claude 做（还没试过）</td></tr><tr><td>头脑风暴（玩法变体、关卡草图、文案备选）</td><td><span class="chip r-deep">DeepSeek Flash</span></td><td class='m'>high</td><td class='why'>不需要读代码</td></tr><tr><td>单文件里的算法草稿（如赛车物理一个函数）</td><td><span class="chip r-deep">DeepSeek Flash</span></td><td class='m'>max</td><td class='why'>Claude 读懂、接进代码并测试；第三方跑分显示难推理不如 Claude</td></tr><tr><td>Flash 两次答不好的纯文字推理题</td><td><span class="chip r-pro">DeepSeek Pro</span></td><td class='m'>high</td><td class='why'>贵 3–4 倍；没有实测证明比 Flash 好之前不默认用</td></tr><tr><td>跨文件改动、集成、协议 / 状态机、C 和 JS 对齐、调试、硬件日志、最终评审</td><td><span class="chip r-claude">Claude</span></td><td class='m'>—</td><td class='why'>需要读仓库、改文件、跑测试，DeepSeek 做不了</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div class="panel rpanel">
+      <h3>派子 Agent 时开多大推理强度</h3>
+      <p class="note">结果太浅就调高一档，连续轻松完成就调低一档；难、风险高、规模大的活直接开多 Agent 编排。</p>
+      <div class="tscroll"><table class="rtable">
+        <thead><tr><th>任务</th><th>例子</th><th>强度</th></tr></thead>
+        <tbody><tr><td>机械操作：git 合并、清理、移动文件、跑现有测试并报告</td><td class='why'>合并分支、删 worktree、重跑浏览器测试</td><td><span class='chip e1'>low</span></td></tr><tr><td>改文案、精简文字、按术语表统一用词</td><td class='why'>精简规则说明、统一大小写</td><td><span class='chip e1'>low</span></td></tr><tr><td>翻译（中 ↔ 英）界面和数据</td><td class='why'>网站英文版三个 agent</td><td><span class='chip e2'>medium</span></td></tr><tr><td>复核单条发现（尝试否决）</td><td class='why'>评审后的复核 agent</td><td><span class='chip e2'>medium</span></td></tr><tr><td>单模块网页功能 + 浏览器测试</td><td class='why'>留言板、语言切换、对战原型 UI</td><td><span class='chip e2'>medium</span></td></tr><tr><td>纯 C 单模块 + 单元测试</td><td class='why'>controls.c、trial.c、输入 driver</td><td><span class='chip e2'>medium</span></td></tr><tr><td>写测试找 bug（覆盖已有逻辑）</td><td class='why'>test_rules.c、test_game.c</td><td><span class='chip e2'>medium</span></td></tr><tr><td>网页新玩法原型（含中央板模拟、物理 / 关卡）</td><td class='why'>掌机模拟器里的赛车、冒险</td><td><span class='chip e3'>high</span></td></tr><tr><td>掌机界面画面（菜单、登录、结算等，按规格实现）</td><td class='why'>screens-menu.js、screens-boot-login.js</td><td><span class='chip e2'>medium</span></td></tr><tr><td>多分支合并后的整体联调和修复</td><td class='why'>掌机模拟器第二轮合并后的集成测试</td><td><span class='chip e3'>high</span></td></tr><tr><td>跨模块集成、协议 / 状态机改动</td><td class='why'>协议 v5、连续格挡接入 player_core、换宠物</td><td><span class='chip e3'>high</span></td></tr><tr><td>两边必须算出完全一样的数（C 和 JS 对齐）</td><td class='why'>光带公式、伤害公式在固件和网页一致</td><td><span class='chip e3'>high</span></td></tr><tr><td>代码集成审查（加载顺序、全局变量、样式层叠）</td><td class='why'>英文版合并后的集成评审</td><td><span class='chip e3'>high</span></td></tr><tr><td>规格和设计综合（多方案合成、玩法设计）</td><td class='why'>attack-trial.md、ui-design.md</td><td><span class='chip e3'>high</span></td></tr><tr><td>硬件实测日志分析、无线 / 中断 / 驱动调试</td><td class='why'>上板后的串口输出、radio_link、I2C 超时</td><td><span class='chip e3'>high（疑难时 xhigh）</span></td></tr><tr><td>并发 / 时序类疑难 bug</td><td class='why'>丢包下的重发、ISR 和主循环共享数据</td><td><span class='chip e4'>xhigh</span></td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div class="panel rpanel">
+      <h3>DeepSeek 干活记录</h3>
+      <p class="note">评级：直接用 · 小改（少量用词或一两处意思）· 大改（一半以上重写）· 作废（Claude 重做）。</p>
+      <div class="tscroll"><table class="rtable">
+        <thead><tr><th>日期</th><th>任务</th><th>模型 / 强度</th><th>花费</th><th>结果</th><th>Claude 改了什么</th></tr></thead>
+        <tbody><tr><td class='m'>2026-10-21</td><td>测试 API 和 key 能不能用（3 次探测 + 1 次 smoke）</td><td class='m'>flash / none、low</td><td class='m'>&lt; $0.001</td><td><span class='chip r-ok'>直接用</span></td><td class='why'>确认网络 secret 生效、<code>reasoning_effort</code> 和关闭思考都可用</td></tr><tr><td class='m'>2026-10-21</td><td>网站架构页软件视图：14 个模块的名字和说明译成英文</td><td class='m'>flash / none</td><td class='m'>~$0.002</td><td><span class='chip r-minor'>小改</span></td><td class='why'>1 处意思不准（&quot;按压落在带内&quot;应为&quot;指针留在带内&quot;），1 处英式拼写（colour），1 个名字改短（Button meanings → Controls）。同等工作量 Claude 自己翻译估计要多花几千 token</td></tr><tr><td class='m'>2026-10-21</td><td>架构页新增 2 个模块（字库工具、DeepSeek 助手）的英文</td><td class='m'>flash / none</td><td class='m'>~$0.001</td><td><span class='chip r-minor'>小改</span></td><td class='why'>只把 emulator 改成 simulator（和网站统一用词）；其它直接用</td></tr></tbody>
+      </table></div>
+    </div>
+  </section>
+  <!--AI-RULES-END-->
+
   <footer>
-    <span>按我的实际分工绘制：目前在岗的是 Claude 和它的子 Agent；GPT Codex 额度用完，10 月 27 日回来。</span>
+    <span>按我的实际分工绘制：目前在岗的是 Claude、它的子 Agent 和 DeepSeek（文字活）；GPT Codex 额度用完，10 月 27 日回来。</span>
     <span>像素角色与家具来自 <a href="https://github.com/pablodelucca/pixel-agents" target="_blank" rel="noopener">Pixel Agents</a>（MIT），角色基于 JIK-A-4 的 <a href="https://jik-a-4.itch.io/metrocity-free-topdown-character-pack" target="_blank" rel="noopener">MetroCity</a>（CC0）。</span>
   </footer>
 </div>
@@ -203,7 +270,7 @@ var furniture=[
   ['CHAIR_FRONT',168,64,72],
   ['DESK_FRONT',152,64],['COFFEE',156,62,97],['PC_SIDE',188,50,97],
   ['DESK_FRONT',16,108],['DESK_FRONT',64,108],
-  ['DESK_FRONT',248,108],
+  ['DESK_FRONT',248,108],['DESK_FRONT',300,108],
   ['SOFA_FRONT',260,180,188],
   ['COFFEE_TABLE',262,206],
   ['LARGE_PLANT',314,176],
@@ -211,8 +278,8 @@ var furniture=[
   ['CACTUS',112,200],['BIN',228,218]
 ];
 var wallDecor=[['LARGE_PAINTING',48,-1],['SMALL_PAINTING',98,0],['CLOCK',126,-2],['WHITEBOARD',230,-1],['SMALL_PAINTING_2',290,0],['HANGING_PLANT',322,2]];
-var pcs={s0:{x:24,y:96,on:false},s1:{x:56,y:96,on:false},s2:{x:88,y:96,on:false},c0:{x:256,y:96,on:false},c1:{x:280,y:96,on:false}};
-var chairsBack=[[24,138],[56,138],[88,138],[268,138]];
+var pcs={s0:{x:24,y:96,on:false},s1:{x:56,y:96,on:false},s2:{x:88,y:96,on:false},c0:{x:256,y:96,on:false},c1:{x:280,y:96,on:false},d0:{x:316,y:96,on:false}};
+var chairsBack=[[24,138],[56,138],[88,138],[268,138],[316,138]];
 
 /* ---------- characters ---------- */
 function mk(id,sheet,x,y,dir,o){var c={id:id,sheet:sheet,x:x,y:y,dir:dir,anim:'idle',visible:true,fx:null,fxT:0,t:Math.random()*3};for(var k in (o||{}))c[k]=o[k];return c}
@@ -333,10 +400,9 @@ function render(time){
 var overlay=document.getElementById('overlay');
 function el(cls,html){var e=document.createElement('div');e.className=cls;if(html!=null)e.innerHTML=html;overlay.appendChild(e);return e}
 function place(e,x,y){e.style.left=(x/W*100)+'%';e.style.top=(y/H*100)+'%'}
-[['CLAUDE · 老大','claude',176,99],['SUB-AGENTS · 子 Agent','sub',64,158],['CODEX','',276,158],['DEEPSEEK · 待命','deep',300,226],['YOU · 你','you',176,229]].forEach(function(n){place(el('name '+n[1],n[0]),n[2],n[3])});
-var zzz=el('zzz','<span>z</span><span>Z</span><span>z</span>');
+[['CLAUDE · 老大','claude',176,99],['SUB-AGENTS · 子 Agent','sub',64,158],['CODEX','',276,158],['DEEPSEEK · 文字活','deep',300,226],['YOU · 你','you',176,229]].forEach(function(n){place(el('name '+n[1],n[0]),n[2],n[3])});
 var bubbles={};
-Object.keys(ch).forEach(function(k){bubbles[k]=el('bubble'+(k==='claude'?' claude':''))});
+Object.keys(ch).forEach(function(k){bubbles[k]=el('bubble'+(k==='claude'||k==='deep'?' '+k:''))});
 function headY(c){return c.y+(c.dir==='down'||c.dir==='up'?1:1)}
 function say(id,text,ms){
   var e=bubbles[id];e.textContent=text;e.classList.add('show');
@@ -344,8 +410,6 @@ function say(id,text,ms){
 }
 function syncOverlay(){
   Object.keys(ch).forEach(function(k){var c=ch[k];place(bubbles[k],c.x+8,headY(c)-1)});
-  place(zzz,ch.deep.x+24,ch.deep.y+16);
-  zzz.hidden=!ch.deep.visible||bubbles.deep.classList.contains('show');
 }
 
 /* ---------- loop ---------- */
@@ -393,7 +457,7 @@ function reset(){
   SUBS.forEach(function(s){ch[s].visible=false;ch[s].fx=null;ch[s].anim='type';pcs[s].on=false});
   ['user','claude','codex','deep'].forEach(function(k){var c=ch[k];c.target=null;c.onArrive=null;c.x=HOME[k][0];c.y=HOME[k][1];c.anim='idle';c.fx=null;c.visible=true});
   ch.user.dir='up';ch.claude.dir='down';ch.codex.dir='up';ch.deep.dir='down';
-  pcs.c0.on=pcs.c1.on=false;
+  pcs.c0.on=pcs.c1.on=pcs.d0.on=false;
 }
 
 function userToClaude(t,text){
@@ -430,6 +494,27 @@ function codexBack(t,text){
     if(t!==tok)return;ch.codex.anim='idle';pcs.c0.on=pcs.c1.on=false;ch.claude.anim='read';say('claude','我来审一下',1500);return wait(1900);
   }).then(function(){if(t===tok)ch.claude.anim='idle'});
 }
+/* DeepSeek：沙发是休息位，接到文字活就走到 Codex 旁边的工位（316,118），交完稿再走回沙发 */
+var DS_DESK=[316,118],DS_AISLE=300;
+function toDeep(t,text,ack){
+  say('claude',text,1400);
+  return wait(400).then(function(){return send(ch.claude,hand(ch.deep))}).then(function(){
+    if(t!==tok)return;say('deep',ack,1300);return wait(600);
+  }).then(function(){if(t!==tok)return;return walk(ch.deep,DS_AISLE,HOME.deep[1])})
+    .then(function(){if(t!==tok)return;return walk(ch.deep,DS_DESK[0],DS_DESK[1],'up')})
+    .then(function(){if(t!==tok)return;ch.deep.anim='type';pcs.d0.on=true;return wait(1800)});
+}
+function deepBack(t,text,check){
+  ch.deep.anim='type';pcs.d0.on=true;
+  say('deep',text,1400);
+  return wait(500).then(function(){return send(ch.deep,hand(ch.claude))}).then(function(){
+    if(t!==tok)return;pcs.d0.on=false;ch.deep.anim='idle';ch.claude.anim='read';say('claude',check,1600);
+    return walk(ch.deep,DS_AISLE,DS_DESK[1]);
+  }).then(function(){if(t!==tok)return;return walk(ch.deep,HOME.deep[0],HOME.deep[1],'down')})
+    .then(function(){if(t!==tok)return;return wait(500)})
+    .then(function(){if(t===tok)ch.claude.anim='idle'});
+}
+function preDeep(){var c=ch.deep;c.x=DS_DESK[0];c.y=DS_DESK[1];c.dir='up';c.anim='type';pcs.d0.on=true}
 function toUser(t,text){
   say('claude',text,1500);
   return walk(ch.user,168,76,'up').then(function(){if(t!==tok)return;return send(ch.claude,hand(ch.user),0.6)})
@@ -445,6 +530,8 @@ var flows={
     {title:'子 Agent 调研',who:'CLAUDE → SUB ×3',d:'召唤三个子 Agent 并行翻代码库、查文档，查完带着结论回来就下线。',run:function(t){return dispatch(t,3,'去查资料！','read','收到！').then(function(){if(t===tok)return report(t,3,'查完了！')})}},
     {title:'Codex 写功能',who:'CLAUDE → CODEX',d:'GPT Codex 按 Claude 给的规格实现页面和功能逻辑。',run:function(t){return toCodex(t,'写代码！','开干！')}},
     {title:'代码交回审查',who:'CODEX → CLAUDE',d:'Codex 交回代码，Claude 逐段审查、合并到一起。',run:function(t){return codexBack(t,'交货！')}},
+    {title:'DeepSeek 写文字初稿',who:'CLAUDE → DEEPSEEK',d:'页面文案的翻译、精简、说明总结这类一问一答的活，交给 DeepSeek 先出初稿，省下 Claude 的额度。',run:function(t){return toDeep(t,'文字活交给你！','文字活交给我！')}},
+    {title:'Claude 检查草稿',who:'DEEPSEEK → CLAUDE',d:'DeepSeek 看不到代码、也不能改文件，交回的只是草稿；Claude 检查改好再放进页面，并记一笔质量评级。',pre:preDeep,run:function(t){return deepBack(t,'初稿好了！','我检查一下')}},
     {title:'子 Agent 测试',who:'CLAUDE → SUB ×1',d:'另召唤一个没看过代码的子 Agent 去点页面、找 bug。',run:function(t){return dispatch(t,1,'去测试！','read','开测！')}},
     {title:'测试报告回传',who:'SUB → CLAUDE',d:'子 Agent 把发现的问题报给 Claude，然后下线；Claude 修掉问题。',pre:pre(1,'read'),run:function(t){return report(t,1,'有 2 个 bug！')}},
     {title:'整合并交付',who:'CLAUDE → YOU',d:'Claude 推到 GitHub、开好网页，把链接交给你。',run:function(t){return toUser(t,'上线啦！')}}
@@ -453,6 +540,8 @@ var flows={
     {title:'你定方向',who:'YOU → CLAUDE',d:'告诉 Claude 要测什么能力、出多少题、什么难度。',run:function(t){return userToClaude(t,'出一批题！')}},
     {title:'Claude 设计规格',who:'CLAUDE',d:'写清题目格式、输入输出、评分标准和难度梯度。',run:function(t){return claudeThink(t,'定规格！')}},
     {title:'子 Agent 并行起草',who:'CLAUDE → SUB ×3',d:'三个子 Agent 同时起草 task 描述和数据，各管一块，交稿后下线。',run:function(t){return dispatch(t,3,'去出题！','type','收到！').then(function(){if(t===tok)return report(t,3,'草稿好了！')})}},
+    {title:'DeepSeek 改写、造数据',who:'CLAUDE → DEEPSEEK',d:'把题面改写成几种说法、批量生成测试数据、做格式转换，这些先交给 DeepSeek 出一版。',run:function(t){return toDeep(t,'改写+造数据！','马上来！')}},
+    {title:'Claude 筛选',who:'DEEPSEEK → CLAUDE',d:'DeepSeek 交回改写稿和数据；Claude 挑出能用的，数据逐条机械校验，不合格的丢掉。',pre:preDeep,run:function(t){return deepBack(t,'交稿啦！','我来筛一筛')}},
     {title:'Codex 写解答和测试',who:'CLAUDE → CODEX',d:'Codex 写参考解答、评测脚本和运行环境。',run:function(t){return toCodex(t,'搭环境！','开干！')}},
     {title:'参考解跑通',who:'CODEX → CLAUDE',d:'Codex 确认参考解能通过全部测试，交回 Claude 审查。',run:function(t){return codexBack(t,'跑通了！')}},
     {title:'子 Agent 盲测',who:'CLAUDE → SUB ×1',d:'召唤一个没看过答案的子 Agent 独立做题，看题目是否清楚、有没有能钻的空子。',run:function(t){return dispatch(t,1,'盲测！','read','开做！')}},
@@ -466,6 +555,8 @@ var flows={
     {title:'子 Agent 挑错',who:'CLAUDE → SUB ×1',d:'另召唤一个子 Agent，专找会让仿真失败、或让“成功”不可信的问题。',run:function(t){return dispatch(t,1,'去挑错！','read','开查！')}},
     {title:'挑错结果回传',who:'SUB → CLAUDE',d:'子 Agent 报告查到的问题后下线，Claude 改掉。',pre:pre(1,'read'),run:function(t){return report(t,1,'有 1 个问题！')}},
     {title:'GPU 跑仿真',who:'CLAUDE',d:'先看共享机器上有没有别人在用 GPU，再把仿真排进队列；失败就按实测数据找原因、改完再跑。',run:function(t){return claudeThink(t,'排 GPU！')}},
+    {title:'DeepSeek 压缩日志',who:'CLAUDE → DEEPSEEK',d:'仿真日志又长又杂，先交给 DeepSeek 总结成要点（成没成功、报错、关键数值），Claude 不用读整份。',run:function(t){return toDeep(t,'日志太长啦！','我来压缩！')}},
+    {title:'日志摘要交回',who:'DEEPSEEK → CLAUDE',d:'DeepSeek 交回摘要；Claude 拿它对照原始日志里的关键行核实后，才下结论。',pre:preDeep,run:function(t){return deepBack(t,'要点在这！','我核对一下')}},
     {title:'核对并登记',who:'CLAUDE',d:'核对成功证据和余量，登记进任务表，同步任务看板。',run:function(t){return claudeThink(t,'登记！')}},
     {title:'推仓库交付',who:'CLAUDE → YOU',d:'推到你的私人仓库，把结果告诉你。',run:function(t){return toUser(t,'跑通啦！')}}
   ]}
@@ -494,12 +585,12 @@ function mark(){
 }
 function hud(){
   var n=SUBS.filter(function(s){return ch[s].visible}).length;
-  var codexBusy=ch.codex.anim==='type';
+  var codexBusy=ch.codex.anim==='type',deepBusy=ch.deep.anim==='type';
   $('hud').innerHTML=
     '<span class="chip '+(ch.claude.anim!=='idle'?'on':'idle')+'"><i></i>CLAUDE '+(ch.claude.anim!=='idle'?'BUSY':'READY')+'</span>'+
     '<span class="chip '+(n?'on':'')+'"><i></i>SUB-AGENTS '+n+'/3</span>'+
     '<span class="chip '+(codexBusy?'on':'idle')+'"><i></i>CODEX '+(codexBusy?'CODING':'IDLE')+'</span>'+
-    '<span class="chip sleep"><i></i>DEEPSEEK STANDBY</span>';
+    '<span class="chip '+(deepBusy?'deep':'idle')+'"><i></i>DEEPSEEK '+(deepBusy?'WRITING':'ON DUTY')+'</span>';
 }
 setInterval(hud,250);
 
@@ -522,7 +613,7 @@ document.querySelectorAll('[role=tab]').forEach(function(t){t.addEventListener('
 $('play').addEventListener('click',function(){playing=!playing;this.textContent=playing?'暂停':'播放';this.setAttribute('aria-pressed',String(playing));if(playing)start()});
 cv.addEventListener('click',function(e){
   var r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
-  var lines={deep:'还没接入哦…zZ',claude:'有活儿尽管说',codex:'代码交给我',user:'嘿嘿',s0:'我是分身！',s1:'我是分身！',s2:'我是分身！'};
+  var lines={deep:'文字活交给我！',claude:'有活儿尽管说',codex:'代码交给我',user:'嘿嘿',s0:'我是分身！',s1:'我是分身！',s2:'我是分身！'};
   Object.keys(ch).forEach(function(k){var c=ch[k];if(c.visible&&x>=c.x&&x<c.x+16&&y>=c.y&&y<c.y+32)say(k,lines[k],1500)});
 });
 
