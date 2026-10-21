@@ -129,6 +129,7 @@ footer a{color:var(--muted)}
       <div role="tablist" aria-label="选择工作流" style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn" role="tab" data-flow="web" aria-selected="true">网页开发</button>
         <button class="btn" role="tab" data-flow="bench" aria-selected="false">Benchmark Task 制作</button>
+        <button class="btn" role="tab" data-flow="robot" aria-selected="false">机器人仿真任务</button>
       </div>
       <button class="btn play" id="play" aria-pressed="true">暂停</button>
     </div>
@@ -165,13 +166,13 @@ footer a{color:var(--muted)}
       <article class="card">
         <div class="ava" data-sheet="char0"></div>
         <div><h3>子 Agent <span class="badge b-on">ON CALL</span></h3>
-          <p>Claude 的分身，所以长得和老大一样。按需召唤，可同时开好几个，干完就下线。</p>
-          <ul><li>翻代码库、查文档</li><li>并行起草</li><li>没看过答案的盲测</li></ul></div>
+          <p>Claude 的分身，所以长得和老大一样。按需召唤，可同时开好几个，干完就下线。都是同一个模型，按活的难易选推理强度：例行活用低强度省额度，难的诊断才开高强度。</p>
+          <ul><li>翻代码库、查文档</li><li>并行起草、照模板写代码</li><li>没看过答案的盲测、挑错审查</li></ul></div>
       </article>
       <article class="card">
         <div class="ava" data-sheet="char3"></div>
-        <div><h3>GPT Codex <span class="badge b-on">ON DUTY</span></h3>
-          <p>双屏工位上的写代码主力，按 Claude 给的规格动手。</p>
+        <div><h3>GPT Codex <span class="badge b-deep">OUT OF QUOTA</span></h3>
+          <p>双屏工位上的写代码主力，按 Claude 给的规格动手。额度用完了，10 月 27 日回来；这期间它的活由 Claude 的子 Agent 接手。</p>
           <ul><li>功能和页面实现</li><li>参考解答、评测脚本</li><li>运行环境</li></ul></div>
       </article>
       <article class="card k-deep">
@@ -183,7 +184,7 @@ footer a{color:var(--muted)}
   </section>
 
   <footer>
-    <span>按我的实际分工绘制：目前在岗的是 Claude、它的子 Agent 和 GPT Codex。</span>
+    <span>按我的实际分工绘制：目前在岗的是 Claude 和它的子 Agent；GPT Codex 额度用完，10 月 27 日回来。</span>
     <span>像素角色与家具来自 <a href="https://github.com/pablodelucca/pixel-agents" target="_blank" rel="noopener">Pixel Agents</a>（MIT），角色基于 JIK-A-4 的 <a href="https://jik-a-4.itch.io/metrocity-free-topdown-character-pack" target="_blank" rel="noopener">MetroCity</a>（CC0）。</span>
   </footer>
 </div>
@@ -463,6 +464,16 @@ var flows={
     {title:'子 Agent 盲测',who:'CLAUDE → SUB ×1',d:'召唤一个没看过答案的子 Agent 独立做题，看题目是否清楚、有没有能钻的空子。',run:function(t){return dispatch(t,1,'盲测！','read','开做！')}},
     {title:'盲测结果回传',who:'SUB → CLAUDE',d:'子 Agent 报告做题过程，以及题目里的歧义和漏洞，然后下线。',pre:pre(1,'read'),run:function(t){return report(t,1,'有歧义！')}},
     {title:'质检并打包',who:'CLAUDE → YOU',d:'Claude 修正题目、统一格式，打包交给你。',run:function(t){return toUser(t,'打包好了！')}}
+  ]},
+  robot:{name:'机器人仿真任务',steps:[
+    {title:'你定任务',who:'YOU → CLAUDE',d:'告诉 Claude 想让机器人做什么，比如把一瓶水送到对面桌。',run:function(t){return userToClaude(t,'做个新任务！')}},
+    {title:'Claude 定规格',who:'CLAUDE',d:'找最像的已验证任务当模板，定好场景、动作和验收判据（判据不放宽）。',run:function(t){return claudeThink(t,'找模板！')}},
+    {title:'子 Agent 写代码',who:'CLAUDE → SUB ×1',d:'一个子 Agent 照模板写代码和 CPU 测试，写完下线；Codex 有额度时也可以交给 Codex。',run:function(t){return dispatch(t,1,'去写代码！','type','收到！').then(function(){if(t===tok)return report(t,1,'写好了！')})}},
+    {title:'子 Agent 挑错',who:'CLAUDE → SUB ×1',d:'另召唤一个子 Agent，专找会让仿真失败、或让“成功”不可信的问题。',run:function(t){return dispatch(t,1,'去挑错！','read','开查！')}},
+    {title:'挑错结果回传',who:'SUB → CLAUDE',d:'子 Agent 报告查到的问题后下线，Claude 改掉。',pre:pre(1,'read'),run:function(t){return report(t,1,'有 1 个问题！')}},
+    {title:'GPU 跑仿真',who:'CLAUDE',d:'先看共享机器上有没有别人在用 GPU，再把仿真排进队列；失败就按实测数据找原因、改完再跑。',run:function(t){return claudeThink(t,'排 GPU！')}},
+    {title:'核对并登记',who:'CLAUDE',d:'核对成功证据和余量，登记进任务表，同步任务看板。',run:function(t){return claudeThink(t,'登记！')}},
+    {title:'推仓库交付',who:'CLAUDE → YOU',d:'推到你的私人仓库，把结果告诉你。',run:function(t){return toUser(t,'跑通啦！')}}
   ]}
 };
 
