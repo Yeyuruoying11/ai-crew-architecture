@@ -1,0 +1,528 @@
+<title>AI 像素工作室</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+QingKe+HuangYou&family=Silkscreen:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap">
+<style>
+/* Layout: 一台老式游戏机屏幕——上方标题机台，中间是像素办公室画布（右侧工序面板），下方队员卡。刻意单一深色像素世界。 */
+:root{
+  color-scheme: dark;
+  --bg:#14162a; --bg-2:#1b1e36; --panel:#22263f; --panel-2:#2c3152; --line:#07080f;
+  --fg:#eef0ff; --muted:#9ba2c9; --dim:#6a7099;
+  --claude:#ff8a5b; --matrix:#5dea8f; --amber:#ffd23f; --deep:#7d9cff; --codex:#e9ecf6; --you:#ff6b7a;
+  --f-display:"ZCOOL QingKe HuangYou","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-pixel:"Silkscreen","Courier New",monospace;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --shadow:4px 4px 0 var(--line);
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0;background:
+    linear-gradient(transparent 0 calc(100% - 1px),rgba(255,255,255,.025) 0) 0 0/100% 4px,
+    radial-gradient(ellipse at 50% -10%,#2a2f5e 0,var(--bg) 60%);
+  background-color:var(--bg);
+  color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1200px;margin:0 auto;padding-block:26px 40px}
+
+header{display:grid;gap:12px}
+.tag{font-family:var(--f-pixel);font-size:12px;letter-spacing:.08em;color:var(--matrix);display:flex;gap:8px;align-items:center}
+.tag i{width:8px;height:8px;background:var(--matrix);display:inline-block;box-shadow:0 0 8px var(--matrix)}
+@media (prefers-reduced-motion:no-preference){.tag i{animation:blink 1.2s steps(1) infinite}}
+@keyframes blink{50%{opacity:.2}}
+h1{font-family:var(--f-display);font-weight:400;margin:0;font-size:clamp(38px,7vw,74px);line-height:1.05;letter-spacing:.03em;text-wrap:balance;text-shadow:4px 4px 0 var(--line),4px 4px 0 var(--line)}
+h1 b{font-weight:400;color:var(--claude)}
+.lede{margin:0;max-width:40em;color:var(--muted)}
+.lede strong{color:var(--fg)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.btn{
+  font-family:var(--f-display);font-size:19px;color:var(--fg);cursor:pointer;
+  background:var(--panel);border:2px solid var(--line);border-radius:0;padding:5px 16px 6px;
+  box-shadow:var(--shadow);transition:transform .08s,box-shadow .08s;
+}
+.btn:hover{background:var(--panel-2)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+.btn[aria-selected="true"]{background:var(--claude);color:#1a0f0a}
+.btn.play{background:var(--amber);color:#1a160a}
+.btn:focus-visible,.step:focus-visible{outline:2px solid var(--matrix);outline-offset:3px}
+
+.board{display:grid;gap:22px;margin-top:24px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:960px){.board{grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);align-items:start}}
+.frame{background:var(--panel);border:2px solid var(--line);box-shadow:6px 6px 0 var(--line);padding:10px;min-width:0}
+@media (max-width:600px){.frame{padding:6px}.side{padding:10px}}
+.screen{position:relative;width:100%;aspect-ratio:352/240;background:#0d0f1c;border:2px solid var(--line);overflow:hidden}
+.screen canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;display:block;cursor:pointer}
+.overlay{position:absolute;inset:0;pointer-events:none;font-size:clamp(9px,1.45vw,13px)}
+@media (min-width:960px){.overlay{font-size:clamp(10px,.95vw,13px)}}
+.name{
+  position:absolute;transform:translate(-50%,0);white-space:nowrap;
+  font-family:var(--f-pixel);font-size:.82em;line-height:1;letter-spacing:.04em;
+  padding:3px 5px 2px;background:rgba(7,8,15,.82);border:1px solid var(--line);color:var(--fg);
+}
+.name.claude{color:var(--claude)}.name.sub{color:var(--matrix)}.name.deep{color:var(--deep)}.name.you{color:var(--you)}
+.bubble{
+  position:absolute;transform:translate(-50%,-100%);white-space:nowrap;
+  font-family:var(--f-body);font-weight:700;font-size:1em;line-height:1.2;color:#14162a;
+  background:#fff;border:2px solid var(--line);padding:3px 7px;box-shadow:2px 2px 0 var(--line);
+  opacity:0;transition:opacity .12s;
+}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-6px;width:6px;height:6px;background:#fff;border-right:2px solid var(--line);border-bottom:2px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+.bubble.show{opacity:1}
+.bubble.claude{background:#ffe2d4}.bubble.claude::after{background:#ffe2d4}
+.zzz{position:absolute;font-family:var(--f-pixel);color:var(--deep);font-size:1.1em;transform:translate(-50%,-100%)}
+@media (prefers-reduced-motion:no-preference){.zzz span{display:inline-block;animation:zz 2.4s ease-in-out infinite}.zzz span:nth-child(2){animation-delay:.3s}.zzz span:nth-child(3){animation-delay:.6s}}
+@keyframes zz{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-4px);opacity:1}}
+
+.hud{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{font-family:var(--f-pixel);font-size:11px;letter-spacing:.04em;padding:4px 8px 3px;background:var(--bg-2);border:2px solid var(--line);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.chip i{width:8px;height:8px;display:inline-block;background:var(--dim)}
+.chip.on i{background:var(--matrix);box-shadow:0 0 6px var(--matrix)}
+.chip.idle i{background:var(--amber)}
+.chip.sleep i{background:var(--deep)}
+
+.side{display:grid;gap:14px;padding:16px}
+.now{background:var(--bg-2);border:2px solid var(--line);padding:12px 14px;min-height:122px}
+.now-k{font-family:var(--f-pixel);font-size:11px;letter-spacing:.06em;color:var(--matrix);display:flex;justify-content:space-between;gap:8px}
+.now-t{font-family:var(--f-display);font-size:26px;line-height:1.2;margin:4px 0}
+.now-d{margin:0;font-size:14px;color:var(--muted)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.step{width:100%;text-align:left;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:center;font:inherit;color:inherit;background:transparent;border:2px solid transparent;padding:6px 8px;cursor:pointer}
+.step:hover{background:var(--panel-2)}
+.step .n{width:26px;height:26px;display:grid;place-items:center;font-family:var(--f-pixel);font-size:12px;background:var(--bg-2);border:2px solid var(--line);font-variant-numeric:tabular-nums}
+.step b{font-weight:700;font-size:14.5px}
+.step .who{display:block;font-family:var(--f-pixel);font-size:10.5px;color:var(--dim);letter-spacing:.03em}
+.step.on{background:var(--panel-2);border-color:var(--amber)}
+.step.on .n{background:var(--amber);color:#1a160a}
+.step.done .n{background:#1f4a32;color:var(--matrix)}
+
+.roster{margin-top:34px}
+.roster h2{font-family:var(--f-display);font-weight:400;font-size:32px;margin:0 0 14px;text-shadow:3px 3px 0 var(--line)}
+.cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--panel);border:2px solid var(--line);box-shadow:var(--shadow);padding:14px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start}
+.card.k-deep{border-style:dashed}
+.ava{width:48px;height:96px;image-rendering:pixelated;background-repeat:no-repeat;background-size:336px 288px;background-position:-48px 0;background-color:var(--bg-2);border:2px solid var(--line);box-sizing:content-box}
+.card h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:22px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card p{margin:2px 0 6px;font-size:13.5px;color:var(--muted)}
+.card ul{margin:0;padding-left:1.1em;font-size:13px}
+.badge{font-family:var(--f-pixel);font-size:10px;letter-spacing:.05em;padding:2px 6px 1px;border:2px solid var(--line);color:#14162a}
+.b-claude{background:var(--claude)}.b-on{background:var(--matrix)}.b-deep{background:var(--deep)}
+
+footer{margin-top:30px;font-size:12.5px;color:var(--dim);display:grid;gap:4px}
+footer a{color:var(--muted)}
+</style>
+<!--BODY-->
+<div class="wrap">
+  <header>
+    <span class="tag"><i></i>STUDIO ONLINE · 我的 AI 工作流</span>
+    <h1><b>老大 Claude</b> 的像素工作室</h1>
+    <p class="lede"><strong>Claude</strong> 坐镇主位接需求、拆任务、审结果；<strong>子 Agent</strong> 被派出去时会在工位上"刷"地出现，干完就消失；<strong>GPT Codex</strong> 守着双屏写代码；<strong>DeepSeek</strong> 在沙发上打盹待命。</p>
+    <div class="controls">
+      <div role="tablist" aria-label="选择工作流" style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" role="tab" data-flow="web" aria-selected="true">网页开发</button>
+        <button class="btn" role="tab" data-flow="bench" aria-selected="false">Benchmark Task 制作</button>
+      </div>
+      <button class="btn play" id="play" aria-pressed="true">暂停</button>
+    </div>
+  </header>
+
+  <main class="board">
+    <section class="frame" aria-label="像素工作室">
+      <div class="screen" id="screen">
+        <canvas id="room" width="352" height="240" role="img" aria-label="像素办公室：Claude 在主位，左边是子 Agent 工位，右边是 Codex 的双屏工位，右下角沙发上是 DeepSeek，你从下方走进来"></canvas>
+        <div class="overlay" id="overlay"></div>
+      </div>
+      <div class="hud" id="hud"></div>
+    </section>
+
+    <aside class="frame side" aria-label="工序">
+      <div class="now" aria-live="polite">
+        <div class="now-k"><span id="now-flow">网页开发</span><span id="now-n">STEP 1/8</span></div>
+        <div class="now-t" id="now-t">你提需求</div>
+        <p class="now-d" id="now-d"></p>
+      </div>
+      <ol class="steps" id="steps"></ol>
+    </aside>
+  </main>
+
+  <section class="roster" aria-label="队员">
+    <h2>工作室成员</h2>
+    <div class="cards">
+      <article class="card">
+        <div class="ava" data-sheet="char0"></div>
+        <div><h3>Claude <span class="badge b-claude">BOSS</span></h3>
+          <p>坐主位。接需求、定方案、拆任务、派活，最后审查、整合、交付。</p>
+          <ul><li>架构与规格设计</li><li>代码审查、质检</li><li>推送 GitHub</li></ul></div>
+      </article>
+      <article class="card">
+        <div class="ava" data-sheet="char0"></div>
+        <div><h3>子 Agent <span class="badge b-on">ON CALL</span></h3>
+          <p>Claude 的分身，所以长得和老大一样。按需召唤，可同时开好几个，干完就下线。</p>
+          <ul><li>翻代码库、查文档</li><li>并行起草</li><li>没看过答案的盲测</li></ul></div>
+      </article>
+      <article class="card">
+        <div class="ava" data-sheet="char3"></div>
+        <div><h3>GPT Codex <span class="badge b-on">ON DUTY</span></h3>
+          <p>双屏工位上的写代码主力，按 Claude 给的规格动手。</p>
+          <ul><li>功能和页面实现</li><li>参考解答、评测脚本</li><li>运行环境</li></ul></div>
+      </article>
+      <article class="card k-deep">
+        <div class="ava" data-sheet="deep"></div>
+        <div><h3>DeepSeek <span class="badge b-deep">STANDBY</span></h3>
+          <p>还没接入流程，先在沙发上待命。点它可以叫醒它说两句。</p></div>
+      </article>
+    </div>
+  </section>
+
+  <footer>
+    <span>按我的实际分工绘制：目前在岗的是 Claude、它的子 Agent 和 GPT Codex。</span>
+    <span>像素角色与家具来自 <a href="https://github.com/pablodelucca/pixel-agents" target="_blank" rel="noopener">Pixel Agents</a>（MIT），角色基于 JIK-A-4 的 <a href="https://jik-a-4.itch.io/metrocity-free-topdown-character-pack" target="_blank" rel="noopener">MetroCity</a>（CC0）。</span>
+  </footer>
+</div>
+
+<script>
+/*ASSETS*/
+(function(){
+'use strict';
+var W=352,H=240;
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var IMG={};
+function loadAll(){
+  return Promise.all(Object.keys(A).map(function(k){
+    return new Promise(function(res){var i=new Image();i.onload=function(){IMG[k]=i;res()};i.onerror=function(){res()};i.src=A[k];});
+  }));
+}
+
+/* ---------- scene layout (1 scene pixel = 1 sprite pixel) ---------- */
+var furniture=[
+  ['DOUBLE_BOOKSHELF',8,18],
+  ['PLANT',132,40],['PLANT_2',206,40],
+  ['CHAIR_FRONT',168,64,72],
+  ['DESK_FRONT',152,64],['COFFEE',156,62,97],['PC_SIDE',188,50,97],
+  ['DESK_FRONT',16,108],['DESK_FRONT',64,108],
+  ['DESK_FRONT',248,108],
+  ['SOFA_FRONT',260,180,188],
+  ['COFFEE_TABLE',262,206],
+  ['LARGE_PLANT',314,176],
+  ['SMALL_TABLE',20,196],['COFFEE',28,192,229],['WOODEN_CHAIR_SIDE',54,200],
+  ['CACTUS',112,200],['BIN',228,218]
+];
+var wallDecor=[['LARGE_PAINTING',48,-1],['SMALL_PAINTING',98,0],['CLOCK',126,-2],['WHITEBOARD',230,-1],['SMALL_PAINTING_2',290,0],['HANGING_PLANT',322,2]];
+var pcs={s0:{x:24,y:96,on:false},s1:{x:56,y:96,on:false},s2:{x:88,y:96,on:false},c0:{x:256,y:96,on:false},c1:{x:280,y:96,on:false}};
+var chairsBack=[[24,138],[56,138],[88,138],[268,138]];
+
+/* ---------- characters ---------- */
+function mk(id,sheet,x,y,dir,o){var c={id:id,sheet:sheet,x:x,y:y,dir:dir,anim:'idle',visible:true,fx:null,fxT:0,t:Math.random()*3};for(var k in (o||{}))c[k]=o[k];return c}
+var HOME={user:[168,196],claude:[168,51],codex:[268,118],deep:[268,168]};
+var ch={
+  claude:mk('claude','char0',168,51,'down'),
+  codex:mk('codex','char3',268,118,'up'),
+  deep:mk('deep','deep',268,168,'down'),
+  user:mk('user','char5',168,196,'up'),
+  s0:mk('s0','char0',24,118,'up',{visible:false}),
+  s1:mk('s1','char0',56,118,'up',{visible:false}),
+  s2:mk('s2','char0',88,118,'up',{visible:false})
+};
+var SUBS=['s0','s1','s2'];
+var dog={x:130,y:198,dir:1,state:'walk',t:0,wait:0};
+
+/* ---------- canvas ---------- */
+var screen=document.getElementById('screen'), cv=document.getElementById('room'), ctx=cv.getContext('2d');
+var buf=document.createElement('canvas');buf.width=W;buf.height=H;var b=buf.getContext('2d');
+var bg=document.createElement('canvas');bg.width=W;bg.height=H;
+var tmp=document.createElement('canvas');tmp.width=16;tmp.height=32;var tc=tmp.getContext('2d');
+function fit(){
+  var r=screen.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  var z=Math.max(1,Math.ceil(r.width*dpr/W));
+  if(cv.width!==W*z){cv.width=W*z;cv.height=H*z}
+}
+function buildBg(){
+  var g=bg.getContext('2d');g.imageSmoothingEnabled=false;
+  for(var y=32;y<H;y+=16)for(var x=0;x<W;x+=16)g.drawImage(IMG.floor,x,y);
+  for(y=40;y<104;y+=16)for(x=128;x<224;x+=16)g.drawImage(IMG.rug,x,y);
+  g.fillStyle='#7a2d1e';g.fillRect(127,39,98,1);g.fillRect(127,104,98,1);g.fillRect(127,39,1,66);g.fillRect(224,39,1,66);
+  for(y=164;y<H;y+=16)for(x=248;x<W;x+=16)g.drawImage(IMG.lounge,x,y);
+  // back wall
+  g.fillStyle='#d8c9ad';g.fillRect(0,0,W,32);
+  g.fillStyle='#c9b996';for(x=0;x<W;x+=32)g.fillRect(x,0,1,30);
+  g.fillStyle='#efe3cb';g.fillRect(0,0,W,2);
+  g.fillStyle='#8a6a4a';g.fillRect(0,30,W,2);
+  g.fillStyle='#5a4230';g.fillRect(0,32,W,3);
+  g.fillStyle='rgba(0,0,0,.12)';g.fillRect(0,35,W,2);
+  wallDecor.forEach(function(d){var im=IMG[d[0]];if(im)g.drawImage(im,d[1],d[2])});
+  // side shading
+  g.fillStyle='rgba(10,10,30,.18)';g.fillRect(0,32,3,H-32);g.fillRect(W-3,32,3,H-32);
+}
+function drawImg(k,x,y){var im=IMG[k];if(im)b.drawImage(im,Math.round(x),Math.round(y))}
+
+function frameOf(c,time){
+  var f=1;
+  if(c.anim==='walk')f=[0,1,2,1][Math.floor(time*8)%4];
+  else if(c.anim==='type')f=3+Math.floor(time*5)%2;
+  else if(c.anim==='read')f=5+Math.floor(time*2)%2;
+  var row=c.dir==='down'?0:c.dir==='up'?1:2;
+  return {sx:f*16,sy:row*32,flip:c.dir==='left'};
+}
+function drawChar(c,time){
+  if(!c.visible&&!c.fx)return;
+  var im=IMG[c.sheet];if(!im)return;
+  var fr=frameOf(c,c.t);
+  tc.clearRect(0,0,16,32);tc.save();
+  if(fr.flip){tc.translate(16,0);tc.scale(-1,1)}
+  tc.drawImage(im,fr.sx,fr.sy,16,32,0,0,16,32);tc.restore();
+  var x=Math.round(c.x),y=Math.round(c.y);
+  if(!c.fx){b.drawImage(tmp,x,y);return}
+  var p=Math.min(1,c.fxT/0.55);
+  for(var col=0;col<16;col++){
+    var delay=((col*7)%16)/16*0.35, l=Math.max(0,Math.min(1,(p-delay)/0.65)), edge=Math.floor(l*34);
+    if(c.fx==='spawn'){
+      if(edge>0)b.drawImage(tmp,col,0,1,Math.min(32,edge),x+col,y,1,Math.min(32,edge));
+    }else{
+      if(edge<32)b.drawImage(tmp,col,edge,1,32-edge,x+col,y+edge,1,32-edge);
+    }
+    if(l>0&&l<1){
+      b.fillStyle='rgba(93,234,143,.95)';b.fillRect(x+col,y+edge-1,1,2);
+      b.fillStyle='rgba(93,234,143,.45)';b.fillRect(x+col,y+edge-6,1,5);
+      b.fillStyle='rgba(93,234,143,.18)';b.fillRect(x+col,y+edge-14,1,8);
+    }
+  }
+}
+function drawDog(){
+  var im=IMG.dog;if(!im)return;
+  if(dog.state==='walk'){
+    var f=Math.floor(dog.t*7)%3;
+    b.save();
+    if(dog.dir<0){b.translate(Math.round(dog.x)+32,0);b.scale(-1,1);b.drawImage(im,f*32,64,32,32,0,Math.round(dog.y),32,32)}
+    else b.drawImage(im,f*32,64,32,32,Math.round(dog.x),Math.round(dog.y),32,32);
+    b.restore();
+  }else{
+    var g=Math.floor(dog.t*2)%3;
+    b.drawImage(im,48+g*16,0,16,32,Math.round(dog.x)+8,Math.round(dog.y),16,32);
+  }
+}
+function drawEnvelope(x,y){
+  x=Math.round(x)-4;y=Math.round(y)-3;
+  b.fillStyle='#07080f';b.fillRect(x-1,y-1,11,9);
+  b.fillStyle='#ffffff';b.fillRect(x,y,9,7);
+  b.fillStyle='#c9cfe6';b.fillRect(x+1,y+1,1,1);b.fillRect(x+2,y+2,1,1);b.fillRect(x+3,y+3,3,1);b.fillRect(x+6,y+2,1,1);b.fillRect(x+7,y+1,1,1);
+  b.fillStyle='#ff8a5b';b.fillRect(x+4,y+3,1,2);
+}
+
+var packets=[];
+function render(time){
+  b.imageSmoothingEnabled=false;
+  b.drawImage(bg,0,0);
+  var ents=[];
+  furniture.forEach(function(f){var im=IMG[f[0]];if(!im)return;ents.push({z:f[3]!=null?f[3]:f[2]+im.height,d:function(){drawImg(f[0],f[1],f[2])}})});
+  Object.keys(pcs).forEach(function(k){var p=pcs[k];ents.push({z:141,d:function(){drawImg(p.on?'PC_ON_'+(1+Math.floor(time*4+p.x)%3):'PC_OFF',p.x,p.y)}})});
+  chairsBack.forEach(function(c){ents.push({z:153,d:function(){drawImg('CHAIR_BACK',c[0],c[1])}})});
+  Object.keys(ch).forEach(function(k){var c=ch[k];ents.push({z:c.y+32,d:function(){drawChar(c,time)}})});
+  ents.push({z:dog.y+30,d:drawDog});
+  ents.sort(function(a,c){return a.z-c.z});
+  ents.forEach(function(e){e.d()});
+  packets.forEach(function(p){if(p.show)drawEnvelope(p.x,p.y)});
+  ctx.imageSmoothingEnabled=false;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.drawImage(buf,0,0,cv.width,cv.height);
+}
+
+/* ---------- overlay: names, bubbles ---------- */
+var overlay=document.getElementById('overlay');
+function el(cls,html){var e=document.createElement('div');e.className=cls;if(html!=null)e.innerHTML=html;overlay.appendChild(e);return e}
+function place(e,x,y){e.style.left=(x/W*100)+'%';e.style.top=(y/H*100)+'%'}
+[['CLAUDE · 老大','claude',176,99],['SUB-AGENTS · 子 Agent','sub',64,158],['CODEX','',276,158],['DEEPSEEK · 待命','deep',300,226],['YOU · 你','you',176,229]].forEach(function(n){place(el('name '+n[1],n[0]),n[2],n[3])});
+var zzz=el('zzz','<span>z</span><span>Z</span><span>z</span>');
+var bubbles={};
+Object.keys(ch).forEach(function(k){bubbles[k]=el('bubble'+(k==='claude'?' claude':''))});
+function headY(c){return c.y+(c.dir==='down'||c.dir==='up'?1:1)}
+function say(id,text,ms){
+  var e=bubbles[id];e.textContent=text;e.classList.add('show');
+  clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('show')},ms||1600);
+}
+function syncOverlay(){
+  Object.keys(ch).forEach(function(k){var c=ch[k];place(bubbles[k],c.x+8,headY(c)-1)});
+  place(zzz,ch.deep.x+24,ch.deep.y+16);
+  zzz.hidden=!ch.deep.visible||bubbles.deep.classList.contains('show');
+}
+
+/* ---------- loop ---------- */
+var last=0;
+function tick(now){
+  var dt=Math.min(.1,(now-last)/1000||0);last=now;var time=now/1000;
+  Object.keys(ch).forEach(function(k){var c=ch[k];c.t+=dt;
+    if(c.fx){c.fxT+=dt;if(c.fxT>=0.55){if(c.fx==='despawn')c.visible=false;c.fx=null}}
+    if(c.target){
+      var tx=c.target[0],ty=c.target[1],sp=46*dt;
+      if(Math.abs(c.y-ty)>0.5){c.dir=ty>c.y?'down':'up';c.y+=Math.sign(ty-c.y)*Math.min(sp,Math.abs(ty-c.y))}
+      else if(Math.abs(c.x-tx)>0.5){c.dir=tx>c.x?'right':'left';c.x+=Math.sign(tx-c.x)*Math.min(sp,Math.abs(tx-c.x))}
+      else{c.x=tx;c.y=ty;c.target=null;c.anim='idle';if(c.faceAfter)c.dir=c.faceAfter;var r=c.onArrive;c.onArrive=null;r&&r()}
+    }
+  });
+  dog.t+=dt;
+  if(dog.state==='walk'){dog.x+=dog.dir*18*dt;if(dog.x>212||dog.x<104){dog.x=Math.max(104,Math.min(212,dog.x));dog.state='sit';dog.wait=2+Math.random()*3}}
+  else{dog.wait-=dt;if(dog.wait<=0){dog.state='walk';dog.dir=dog.x>150?-1:1}}
+  packets.forEach(function(p){
+    if(!p.show)return;p.e+=dt;var k=Math.min(1,p.e/p.dur),s=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    p.x=p.x0+(p.x1-p.x0)*s;p.y=p.y0+(p.y1-p.y0)*s-Math.sin(Math.PI*s)*p.arc;
+    if(k>=1){p.show=false;p.res&&p.res()}
+  });
+  packets=packets.filter(function(p){return p.show});
+  render(time);syncOverlay();
+  requestAnimationFrame(tick);
+}
+
+/* ---------- actions ---------- */
+var tok=0;
+function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function walk(c,x,y,face){return new Promise(function(r){c.anim='walk';c.target=[x,y];c.faceAfter=face;c.onArrive=r;if(reduce){c.x=x;c.y=y}})}
+function hand(c){return [c.x+8,c.y+16]}
+function send(from,to,dur){
+  var a=Array.isArray(from)?from:hand(from),z=Array.isArray(to)?to:hand(to);
+  return new Promise(function(r){packets.push({x0:a[0],y0:a[1],x1:z[0],y1:z[1],x:a[0],y:a[1],e:0,dur:reduce?0.01:(dur||0.85),arc:18,show:true,res:r})});
+}
+function spawn(id,mode){var c=ch[id];c.visible=true;c.fx=reduce?null:'spawn';c.fxT=0;c.anim=mode||'type';pcs[id].on=true}
+function despawn(id){var c=ch[id];c.fx=reduce?null:'despawn';c.fxT=0;if(reduce)c.visible=false;pcs[id].on=false;c.anim='idle'}
+var PCPOS={s0:[32,108],s1:[64,108],s2:[96,108]};
+
+function reset(){
+  packets=[];
+  Object.keys(bubbles).forEach(function(k){bubbles[k].classList.remove('show')});
+  SUBS.forEach(function(s){ch[s].visible=false;ch[s].fx=null;ch[s].anim='type';pcs[s].on=false});
+  ['user','claude','codex','deep'].forEach(function(k){var c=ch[k];c.target=null;c.onArrive=null;c.x=HOME[k][0];c.y=HOME[k][1];c.anim='idle';c.fx=null;c.visible=true});
+  ch.user.dir='up';ch.claude.dir='down';ch.codex.dir='up';ch.deep.dir='down';
+  pcs.c0.on=pcs.c1.on=false;
+}
+
+function userToClaude(t,text){
+  return walk(ch.user,168,76,'up').then(function(){if(t!==tok)return;say('user',text,1500);return wait(1100)})
+   .then(function(){if(t!==tok)return;say('claude','收到！',1300);ch.claude.anim='read';return wait(1100)})
+   .then(function(){if(t!==tok)return;ch.claude.anim='idle';return walk(ch.user,168,196,'up')});
+}
+function claudeThink(t,text){ch.claude.anim='type';say('claude',text,1800);return wait(2200).then(function(){if(t===tok)ch.claude.anim='idle'})}
+function dispatch(t,n,text,mode,ack){
+  say('claude',text,1500);
+  var list=SUBS.slice(0,n);
+  return wait(400).then(function(){
+    return Promise.all(list.map(function(s,i){return wait(i*160).then(function(){return send(ch.claude,PCPOS[s])}).then(function(){if(t===tok)spawn(s,mode)})}));
+  }).then(function(){if(t!==tok)return;return wait(500)}).then(function(){if(t!==tok)return;say('s0',ack,1300);return wait(1900)});
+}
+function report(t,n,text){
+  var list=SUBS.slice(0,n);
+  say(list[list.length>1?1:0],text,1400);
+  return wait(500).then(function(){
+    return Promise.all(list.map(function(s,i){return wait(i*140).then(function(){return send(ch[s],hand(ch.claude))})}));
+  }).then(function(){if(t!==tok)return;list.forEach(despawn);ch.claude.anim='read';return wait(1300)})
+    .then(function(){if(t===tok)ch.claude.anim='idle'});
+}
+function toCodex(t,text,ack){
+  say('claude',text,1400);
+  return wait(400).then(function(){return send(ch.claude,[276,108])}).then(function(){
+    if(t!==tok)return;ch.codex.anim='type';pcs.c0.on=pcs.c1.on=true;say('codex',ack,1300);return wait(2300);
+  });
+}
+function codexBack(t,text){
+  ch.codex.anim='type';pcs.c0.on=pcs.c1.on=true;
+  say('codex',text,1400);
+  return wait(500).then(function(){return send(ch.codex,hand(ch.claude))}).then(function(){
+    if(t!==tok)return;ch.codex.anim='idle';pcs.c0.on=pcs.c1.on=false;ch.claude.anim='read';say('claude','我来审一下',1500);return wait(1900);
+  }).then(function(){if(t===tok)ch.claude.anim='idle'});
+}
+function toUser(t,text){
+  say('claude',text,1500);
+  return walk(ch.user,168,76,'up').then(function(){if(t!==tok)return;return send(ch.claude,hand(ch.user),0.6)})
+    .then(function(){if(t!==tok)return;say('user','好耶！',1300);return wait(1200)})
+    .then(function(){if(t!==tok)return;return walk(ch.user,168,196,'up')});
+}
+function pre(subs,mode){return function(){for(var i=0;i<subs;i++){var s=SUBS[i];ch[s].visible=true;ch[s].anim=mode;pcs[s].on=true}}}
+
+var flows={
+  web:{name:'网页开发',steps:[
+    {title:'你提需求',who:'YOU → CLAUDE',d:'你把想要的页面、功能和风格告诉 Claude。',run:function(t){return userToClaude(t,'做个网站！')}},
+    {title:'Claude 拆解任务',who:'CLAUDE',d:'定技术方案，把活拆成能并行的小块，安排好谁干什么。',run:function(t){return claudeThink(t,'我来拆！')}},
+    {title:'子 Agent 调研',who:'CLAUDE → SUB ×3',d:'召唤三个子 Agent 并行翻代码库、查文档，查完带着结论回来就下线。',run:function(t){return dispatch(t,3,'去查资料！','read','收到！').then(function(){if(t===tok)return report(t,3,'查完了！')})}},
+    {title:'Codex 写功能',who:'CLAUDE → CODEX',d:'GPT Codex 按 Claude 给的规格实现页面和功能逻辑。',run:function(t){return toCodex(t,'写代码！','开干！')}},
+    {title:'代码交回审查',who:'CODEX → CLAUDE',d:'Codex 交回代码，Claude 逐段审查、合并到一起。',run:function(t){return codexBack(t,'交货！')}},
+    {title:'子 Agent 测试',who:'CLAUDE → SUB ×1',d:'另召唤一个没看过代码的子 Agent 去点页面、找 bug。',run:function(t){return dispatch(t,1,'去测试！','read','开测！')}},
+    {title:'测试报告回传',who:'SUB → CLAUDE',d:'子 Agent 把发现的问题报给 Claude，然后下线；Claude 修掉问题。',pre:pre(1,'read'),run:function(t){return report(t,1,'有 2 个 bug！')}},
+    {title:'整合并交付',who:'CLAUDE → YOU',d:'Claude 推到 GitHub、开好网页，把链接交给你。',run:function(t){return toUser(t,'上线啦！')}}
+  ]},
+  bench:{name:'Benchmark Task 制作',steps:[
+    {title:'你定方向',who:'YOU → CLAUDE',d:'告诉 Claude 要测什么能力、出多少题、什么难度。',run:function(t){return userToClaude(t,'出一批题！')}},
+    {title:'Claude 设计规格',who:'CLAUDE',d:'写清题目格式、输入输出、评分标准和难度梯度。',run:function(t){return claudeThink(t,'定规格！')}},
+    {title:'子 Agent 并行起草',who:'CLAUDE → SUB ×3',d:'三个子 Agent 同时起草 task 描述和数据，各管一块，交稿后下线。',run:function(t){return dispatch(t,3,'去出题！','type','收到！').then(function(){if(t===tok)return report(t,3,'草稿好了！')})}},
+    {title:'Codex 写解答和测试',who:'CLAUDE → CODEX',d:'Codex 写参考解答、评测脚本和运行环境。',run:function(t){return toCodex(t,'搭环境！','开干！')}},
+    {title:'参考解跑通',who:'CODEX → CLAUDE',d:'Codex 确认参考解能通过全部测试，交回 Claude 审查。',run:function(t){return codexBack(t,'跑通了！')}},
+    {title:'子 Agent 盲测',who:'CLAUDE → SUB ×1',d:'召唤一个没看过答案的子 Agent 独立做题，看题目是否清楚、有没有能钻的空子。',run:function(t){return dispatch(t,1,'盲测！','read','开做！')}},
+    {title:'盲测结果回传',who:'SUB → CLAUDE',d:'子 Agent 报告做题过程，以及题目里的歧义和漏洞，然后下线。',pre:pre(1,'read'),run:function(t){return report(t,1,'有歧义！')}},
+    {title:'质检并打包',who:'CLAUDE → YOU',d:'Claude 修正题目、统一格式，打包交给你。',run:function(t){return toUser(t,'打包好了！')}}
+  ]}
+};
+
+/* ---------- UI ---------- */
+var flow='web',idx=0,playing=true;
+var $=function(id){return document.getElementById(id)};
+function renderSteps(){
+  var F=flows[flow],ol=$('steps');ol.innerHTML='';
+  F.steps.forEach(function(s,i){
+    var li=document.createElement('li'),bt=document.createElement('button');
+    bt.className='step';bt.type='button';
+    bt.innerHTML='<span class="n"></span><span><b></b><span class="who"></span></span>';
+    bt.querySelector('.n').textContent=i+1;bt.querySelector('b').textContent=s.title;bt.querySelector('.who').textContent=s.who;
+    bt.addEventListener('click',function(){idx=i;start()});
+    li.appendChild(bt);ol.appendChild(li);
+  });
+  $('now-flow').textContent=F.name;
+  document.querySelectorAll('[role=tab]').forEach(function(t){t.setAttribute('aria-selected',t.dataset.flow===flow?'true':'false')});
+}
+function mark(){
+  var F=flows[flow],s=F.steps[idx];
+  document.querySelectorAll('.step').forEach(function(e,j){e.classList.toggle('on',j===idx);e.classList.toggle('done',j<idx)});
+  $('now-n').textContent='STEP '+(idx+1)+'/'+F.steps.length;$('now-t').textContent=s.title;$('now-d').textContent=s.d;
+}
+function hud(){
+  var n=SUBS.filter(function(s){return ch[s].visible}).length;
+  var codexBusy=ch.codex.anim==='type';
+  $('hud').innerHTML=
+    '<span class="chip '+(ch.claude.anim!=='idle'?'on':'idle')+'"><i></i>CLAUDE '+(ch.claude.anim!=='idle'?'BUSY':'READY')+'</span>'+
+    '<span class="chip '+(n?'on':'')+'"><i></i>SUB-AGENTS '+n+'/3</span>'+
+    '<span class="chip '+(codexBusy?'on':'idle')+'"><i></i>CODEX '+(codexBusy?'CODING':'IDLE')+'</span>'+
+    '<span class="chip sleep"><i></i>DEEPSEEK STANDBY</span>';
+}
+setInterval(hud,250);
+
+async function loop(t){
+  while(t===tok){
+    if(!playing){await wait(200);continue}
+    reset();var s=flows[flow].steps[idx];if(s.pre)s.pre();mark();
+    await s.run(t);
+    if(t!==tok)return;
+    await wait(500);
+    if(t!==tok)return;
+    if(!playing)continue;
+    idx=(idx+1)%flows[flow].steps.length;
+    if(idx===0)await wait(1200);
+  }
+}
+function start(){tok++;reset();mark();loop(tok)}
+
+document.querySelectorAll('[role=tab]').forEach(function(t){t.addEventListener('click',function(){if(flow===t.dataset.flow)return;flow=t.dataset.flow;idx=0;renderSteps();start()})});
+$('play').addEventListener('click',function(){playing=!playing;this.textContent=playing?'暂停':'播放';this.setAttribute('aria-pressed',String(playing));if(playing)start()});
+cv.addEventListener('click',function(e){
+  var r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
+  var lines={deep:'还没接入哦…zZ',claude:'有活儿尽管说',codex:'代码交给我',user:'嘿嘿',s0:'我是分身！',s1:'我是分身！',s2:'我是分身！'};
+  Object.keys(ch).forEach(function(k){var c=ch[k];if(c.visible&&x>=c.x&&x<c.x+16&&y>=c.y&&y<c.y+32)say(k,lines[k],1500)});
+});
+
+document.querySelectorAll('.ava').forEach(function(a){a.style.backgroundImage='url('+A[a.dataset.sheet]+')'});
+
+window.addEventListener('resize',fit);
+loadAll().then(function(){
+  fit();buildBg();renderSteps();
+  requestAnimationFrame(tick);
+  var go=function(){start()};
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);else go();
+});
+})();
+</script>
