@@ -19,13 +19,26 @@
 - **Benchmark Task 制作**：你定方向 → Claude 设计规格 → 子 Agent 并行起草 → DeepSeek 改写题面、造数据 → Claude 筛选 → Codex 写解答和测试 → 参考解跑通 → 子 Agent 盲测 → 结果回传 → 质检打包
 - **机器人仿真任务**：你定任务 → Claude 找模板定规格 → DeepSeek 写代码初稿（opencode） → 初稿交回 → 子 Agent 审查 → 结果回传、Claude 修好 → GPU 跑仿真 → DeepSeek 压缩日志 → 日志摘要交回 Claude 核实 → 核对并登记 → 推私人仓库交付
 
+## 会议时间线
+
+页面顶部的切换按钮可以从像素工作室切到「会议时间线」（网址加 `#conf` 直接打开）：CVPR 2027、RSS 2027 的投稿时间线和 ICLR 2028 的预计窗口，像车站时刻表一样排在一条横向时间轴上。
+
+- 每个会议下一个截止的实时倒计时，最近的截止高亮；
+- 时区切换（AoE / 芝加哥 / 北京，夏令时由浏览器的 Intl 处理），换算后跨日的时间标 `+1d`；
+- 点站牌看详情、三个时区的时间和「加入日历 .ics」，像素小人会走过去；
+- 每个会议的准备清单（存在浏览器本地），勾完有个小庆祝；
+- ICLR 2028 还没公布，全部用虚线标成「预计」，CFP 发布后要到 iclr.cc 核对。
+
+日期最后核对于 2026-10-22，来源链接在页面底部。代码全部在 `src/conf.html` 一个块里（`<!--CONF-START-->` 到 `<!--CONF-END-->`）：改完跑 `python3 tools/sync_conf.py` 同步进 `index.html` 和 `src/template.html`，`node tests/conf-test.js` 是浏览器验收测试（需要全局安装的 Playwright）。
+
 ## 派活规则
 
 页面下方的「派活规则」（谁干什么、子 Agent 开多大推理强度、DeepSeek 干活记录和花费）是生成的：在 pocket-rivals 仓库里跑 `tools/ai_page.py <页面文件> --balance …`，对 `index.html` 和 `src/template.html` 各跑一次，只重写 `<!--AI-RULES-START-->` 到 `<!--AI-RULES-END-->` 之间。
 
 ## 文件
 
-- `index.html`：像素工作室（单文件，素材已内嵌）
+- `index.html`：像素工作室 + 会议时间线（单文件，素材已内嵌）
+- `src/conf.html`、`tools/sync_conf.py`、`tests/conf-test.js`：会议时间线的源码块、同步脚本和浏览器测试
 - `cartoon.html`：第一版卡通架构图
 - `src/`：页面模板和素材打包脚本（需要本地有 Pixel Agents 仓库）
 

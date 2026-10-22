@@ -145,6 +145,1003 @@ footer a{color:var(--muted)}
 </head>
 <body>
 <div class="wrap">
+<!--CONF-START-->
+<style>
+/* ===== 站台时刻表（会议时间线）— 全部挂在 .hub / #conf / .conf- / body[data-view] 下 ===== */
+.hub{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 20px;min-width:0}
+.hub .hub-b{font:400 18px/1.2 var(--f-display);color:var(--fg);cursor:pointer;background:var(--panel);border:2px solid var(--line);border-radius:0;padding:6px 14px 7px;box-shadow:var(--shadow);display:inline-flex;align-items:center;gap:9px;min-width:0;max-width:100%;overflow-wrap:anywhere;text-align:left;transition:transform .08s,box-shadow .08s}
+.hub .hub-b:hover{background:var(--panel-2)}
+.hub .hub-b:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+.hub .hub-b:focus-visible{outline:2px solid var(--matrix);outline-offset:3px}
+.hub .hub-b[aria-pressed="true"]{background:var(--amber);color:#1a160a}
+.hub .hub-badge{font-family:var(--f-pixel);font-size:10px;line-height:1.3;padding:2px 5px 1px;background:var(--you);color:#1a0d0f;border:2px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+#conf{display:none}
+body[data-view="conf"] #conf{display:block}
+body[data-view="conf"] .wrap > :not(.hub):not(#conf):not(style):not(script){display:none}
+
+#conf{padding-bottom:10px}
+#conf .conf-head{display:grid;gap:6px;margin-bottom:16px;min-width:0}
+#conf .conf-tag{font-family:var(--f-pixel);font-size:12px;letter-spacing:.08em;color:var(--amber);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#conf .conf-tag i{width:8px;height:8px;background:var(--amber);display:inline-block;box-shadow:0 0 8px var(--amber)}
+@media (prefers-reduced-motion:no-preference){#conf .conf-tag i{animation:conf-blink 1.2s steps(1) infinite}}
+@keyframes conf-blink{50%{opacity:.2}}
+#conf h2{font-family:var(--f-display);font-weight:400;font-size:clamp(30px,5.4vw,50px);line-height:1.08;margin:0;text-shadow:3px 3px 0 var(--line);overflow-wrap:anywhere}
+#conf h3{font-family:var(--f-display);font-weight:400;font-size:21px;line-height:1.2;margin:0;overflow-wrap:anywhere}
+#conf .conf-lede{margin:0;max-width:54em;color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+
+#conf .conf-ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 0;min-width:0}
+#conf .conf-ctl .conf-lab{font-family:var(--f-pixel);font-size:11px;letter-spacing:.06em;color:var(--dim)}
+#conf .conf-btn{font:400 17px/1.2 var(--f-display);color:var(--fg);cursor:pointer;background:var(--panel);border:2px solid var(--line);border-radius:0;padding:5px 13px 6px;box-shadow:var(--shadow);transition:transform .08s,box-shadow .08s;min-width:0;overflow-wrap:anywhere;text-align:left}
+#conf .conf-btn:hover{background:var(--panel-2)}
+#conf .conf-btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+#conf .conf-btn:focus-visible{outline:2px solid var(--matrix);outline-offset:3px}
+#conf .conf-btn[aria-pressed="true"]{background:var(--matrix);color:#0d1a10}
+#conf .conf-btn.conf-today{background:var(--bg-2);border-color:var(--you)}
+#conf .conf-zn-now{font-family:var(--f-pixel);font-size:11px;letter-spacing:.05em;color:var(--muted);font-variant-numeric:tabular-nums;padding:3px 0}
+
+#conf-board{display:grid;gap:14px;grid-template-columns:minmax(0,1fr);margin-top:18px;min-width:0}
+@media (min-width:900px){#conf-board{grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr))}}
+#conf .conf-card{background:var(--panel);border:2px solid var(--line);box-shadow:var(--shadow);padding:14px 13px 12px;display:grid;gap:6px;align-content:start;min-width:0;position:relative}
+#conf .conf-card::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--c,var(--amber))}
+#conf .conf-card-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;margin-top:4px}
+#conf .conf-card-h h3{font-family:var(--f-pixel);font-weight:700;font-size:14px;letter-spacing:.04em;color:var(--c,var(--fg))}
+#conf .conf-card-lbl{margin:0;font-size:13px;color:var(--fg);font-weight:700;overflow-wrap:anywhere}
+#conf .conf-card-t{margin:0;font-family:var(--f-pixel);font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#conf .conf-card-t .conf-zn{color:var(--dim);margin-left:4px}
+
+#conf-next{background:var(--panel);border:2px solid var(--amber);box-shadow:4px 4px 0 var(--line);padding:14px 13px 12px;display:grid;gap:6px;min-width:0;text-align:left;font:inherit;color:var(--fg);cursor:pointer;align-content:start;position:relative}
+#conf-next::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--amber)}
+#conf-next:hover{background:var(--panel-2)}
+#conf-next:focus-visible{outline:2px solid var(--matrix);outline-offset:3px}
+#conf-next .conf-next-k{font-family:var(--f-pixel);font-size:10.5px;letter-spacing:.06em;color:var(--amber);display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+#conf-next .conf-next-t{font-family:var(--f-display);font-size:23px;line-height:1.15;margin:0;overflow-wrap:anywhere}
+#conf-next .conf-next-s{margin:0;font-family:var(--f-pixel);font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+
+#conf .conf-cd{font-family:var(--f-pixel);font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;align-items:center;gap:4px 3px;font-size:19px;line-height:1.15;min-width:0}
+#conf .conf-cd .conf-cell{background:var(--bg-2);border:2px solid var(--line);padding:2px 5px 1px;box-shadow:2px 2px 0 var(--line)}
+#conf .conf-cd .conf-cd-u{color:var(--dim);font-size:12px;padding:0 1px}
+#conf .conf-cd[data-estimate="true"]{font-size:17px;color:var(--amber)}
+#conf .conf-cd.conf-hot{color:var(--amber)}
+@media (prefers-reduced-motion:no-preference){#conf .conf-cd.conf-hot{animation:conf-pulse 1.7s ease-in-out infinite}}
+@keyframes conf-pulse{50%{opacity:.55}}
+#conf .conf-note{margin:0;font-size:11.5px;color:var(--dim);overflow-wrap:anywhere}
+
+#conf .conf-lever{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-pixel);font-size:10.5px;letter-spacing:.04em;color:var(--fg);background:var(--bg-2);border:2px solid var(--line);padding:4px 9px 3px;cursor:pointer;box-shadow:2px 2px 0 var(--line);justify-self:start;margin-top:2px}
+#conf .conf-lever:hover{background:var(--panel-2)}
+#conf .conf-lever:focus-visible{outline:2px solid var(--matrix);outline-offset:3px}
+#conf .conf-lever:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--line)}
+#conf .conf-lever i{width:12px;height:12px;display:inline-block;background:var(--matrix);border:2px solid var(--line);box-shadow:inset -2px -2px 0 rgba(0,0,0,.25)}
+#conf .conf-lever[aria-pressed="false"] i{background:var(--dim);box-shadow:inset 2px 2px 0 rgba(0,0,0,.35)}
+#conf .conf-card.is-hidden{opacity:.45}
+</style>
+<style>
+#conf .conf-boardwrap{margin-top:22px;background:var(--panel);border:2px solid var(--line);box-shadow:6px 6px 0 var(--line);padding:10px;min-width:0}
+#conf .conf-boardwrap-h{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between;padding:0 2px 8px;min-width:0}
+#conf .conf-boardwrap-h b{font-family:var(--f-pixel);font-size:11px;letter-spacing:.06em;color:var(--matrix)}
+#conf .conf-boardwrap-h span{font-size:12px;color:var(--dim);overflow-wrap:anywhere}
+
+#conf-track{position:relative;overflow-x:auto;overflow-y:hidden;background:#0d0f1c;border:2px solid var(--line);min-width:0;-webkit-overflow-scrolling:touch;scrollbar-color:var(--dim) var(--bg-2)}
+#conf-track:focus-visible{outline:2px solid var(--matrix);outline-offset:3px}
+#conf .conf-inner{position:relative;height:334px;width:2560px;min-width:2560px}
+#conf .conf-ruler{position:absolute;left:0;top:0;height:44px;width:2560px;border-bottom:2px solid var(--line);background:var(--bg-2)}
+#conf .conf-tick{position:absolute;top:44px;bottom:0;width:0;border-left:1px solid rgba(255,255,255,.06)}
+#conf .conf-tick.conf-yr{border-left-color:rgba(255,255,255,.16)}
+#conf .conf-mon{position:absolute;top:6px;font-family:var(--f-pixel);font-size:10px;color:var(--muted);white-space:nowrap;padding-left:4px;letter-spacing:.02em}
+#conf .conf-mon.conf-yr{top:0;font-size:11px;color:var(--amber);background:var(--bg);padding:0 5px 0 4px;border-right:2px solid var(--line);border-bottom:2px solid var(--line);height:18px;line-height:18px}
+#conf .conf-nowline{position:absolute;top:44px;bottom:0;width:2px;margin-left:-1px;background:var(--you);box-shadow:0 0 8px rgba(255,107,122,.7);z-index:3;pointer-events:none}
+#conf .conf-nowline::after{content:"今天";position:absolute;left:-15px;top:-21px;font-family:var(--f-pixel);font-size:10px;line-height:1;padding:3px 4px 2px;background:var(--you);color:#1a0d0f;border:2px solid var(--line);white-space:nowrap;z-index:4}
+#conf .conf-lane{position:absolute;left:0;right:0;height:86px;border-top:2px solid rgba(7,8,15,.85);background:repeating-linear-gradient(90deg,transparent 0 123px,rgba(255,255,255,.028) 0 124px)}
+#conf .conf-lane-n{position:sticky;left:6px;z-index:6;margin:6px 0 0 6px;display:inline-flex;align-items:center;gap:6px;font-family:var(--f-pixel);font-size:10.5px;line-height:1.3;letter-spacing:.05em;padding:3px 6px 2px;background:var(--bg);border:2px solid var(--line);color:var(--fg);box-shadow:2px 2px 0 var(--line);pointer-events:none}
+#conf .conf-lane-n i{width:8px;height:8px;background:var(--c,var(--fg));display:inline-block}
+#conf .conf-walker-plain{background:linear-gradient(var(--you) 0 50%,var(--panel-2) 0)}
+#conf .conf-walker{position:absolute;left:0;top:0;width:32px;height:64px;background-repeat:no-repeat;background-size:224px 192px;background-position:0 0;image-rendering:pixelated;z-index:7;pointer-events:none;transform-origin:50% 50%;filter:drop-shadow(2px 3px 0 rgba(0,0,0,.55))}
+#conf .conf-ms[data-estimate="true"]::after{content:"";position:absolute;left:-3px;right:-3px;top:15px;height:18px;border:2px dashed var(--c,var(--fg));pointer-events:none}
+#conf .conf-ms{position:absolute;z-index:4;top:0;height:40px;width:14px;background:transparent;border:0;padding:0;box-shadow:none;cursor:pointer;color:var(--fg);font:inherit;overflow:visible;display:block;min-width:0;-webkit-tap-highlight-color:transparent}
+#conf .conf-ms:focus-visible{outline:2px solid var(--matrix);outline-offset:3px;z-index:9}
+#conf .conf-sign{position:absolute;left:0;top:16px;width:14px;height:14px;border:2px solid var(--line);background:var(--c,var(--fg));box-shadow:0 0 0 2px rgba(7,8,15,.5)}
+#conf .conf-ms[data-kind="notice"] .conf-sign{background:var(--panel)}
+#conf .conf-ms[data-kind="notice"] .conf-sign::after{content:"";position:absolute;inset:2px;background:var(--c,var(--fg))}
+#conf .conf-ms[data-estimate="true"] .conf-sign{background:repeating-linear-gradient(135deg,rgba(255,255,255,.30) 0 3px,transparent 3px 6px),var(--c,var(--fg));border-style:dashed;border-color:var(--fg)}
+#conf .conf-ms.conf-tent .conf-sign::before{content:"?";position:absolute;right:-8px;top:-9px;width:11px;height:11px;font-family:var(--f-pixel);font-size:8px;line-height:11px;text-align:center;background:var(--amber);color:#1a160a;border:1px solid var(--line)}
+#conf .conf-ms.is-sel .conf-sign{box-shadow:0 0 0 3px var(--amber),0 0 0 4px var(--line)}
+#conf .conf-bar{position:absolute;left:0;right:0;top:19px;height:10px;border:2px solid var(--c,var(--fg));background:rgba(255,255,255,.10);box-sizing:border-box}
+#conf .conf-ms[data-estimate="true"] .conf-bar{border:0;background:repeating-linear-gradient(135deg,var(--c,var(--fg)) 0 3px,transparent 3px 6px);opacity:.75}
+#conf .conf-flag{position:absolute;left:2px;top:-12px;width:2px;height:16px;background:var(--c,var(--fg))}
+#conf .conf-flag::after{content:"";position:absolute;left:2px;top:0;width:9px;height:7px;background:var(--c,var(--fg))}
+#conf .conf-ms-lab{position:absolute;left:0;top:42px;font-size:11px;line-height:1.25;white-space:nowrap;color:var(--fg);background:rgba(13,15,28,.86);padding:1px 4px 0;max-width:134px;overflow:hidden;text-overflow:ellipsis;border-left:2px solid var(--c,var(--fg))}
+#conf .conf-ms-lab.conf-lab-lo{top:59px}
+#conf .conf-ms.conf-past .conf-ms-lab{color:var(--dim)}
+#conf .conf-ms.conf-past .conf-sign,#conf .conf-ms.conf-past .conf-bar,#conf .conf-ms.conf-past .conf-flag{opacity:.42}
+#conf .conf-ms.conf-past .conf-ms-lab{border-left-color:var(--dim)}
+#conf .conf-key{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 2px 0;font-size:11px;color:var(--dim);min-width:0}
+#conf .conf-key span{display:inline-flex;align-items:center;gap:5px;min-width:0}
+#conf .conf-key em{width:9px;height:9px;border:2px solid var(--line);display:inline-block;flex:0 0 auto}
+#conf .conf-key .k1{background:var(--claude)}#conf .conf-key .k2{background:var(--panel)}#conf .conf-key .k3{background:repeating-linear-gradient(135deg,#fff 0 2px,transparent 2px 4px);border-style:dashed;border-color:var(--fg)}
+
+#conf .conf-tip{position:fixed;left:0;top:0;z-index:300;max-width:270px;min-width:0;padding:7px 9px 8px;background:var(--panel);border:2px solid var(--line);box-shadow:4px 4px 0 var(--line);font-size:12px;line-height:1.45;color:var(--fg);overflow-wrap:anywhere}
+#conf .conf-tip[hidden]{display:none}
+#conf .conf-tip b{display:block;font-family:var(--f-pixel);font-weight:700;font-size:11px;letter-spacing:.03em;color:var(--c,var(--amber))}
+#conf .conf-tip .conf-tip-t{font-family:var(--f-pixel);font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--fg)}
+#conf .conf-tip .conf-tip-n{color:var(--muted);font-size:11.5px}
+#conf .conf-est{font-family:var(--f-pixel);font-size:9.5px;letter-spacing:.03em;padding:2px 4px 1px;border:2px solid var(--line);background:var(--deep);color:#0d1024;display:inline-block;line-height:1.2;vertical-align:middle}
+
+#conf-ticket{margin-top:12px;background:var(--panel-2);border:2px solid var(--amber);box-shadow:var(--shadow);padding:12px 13px;min-width:0;overflow-wrap:anywhere}
+#conf-ticket[hidden]{display:none}
+#conf .conf-tk-h{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:space-between;min-width:0}
+#conf .conf-tk-h b{font-family:var(--f-pixel);font-weight:700;font-size:12px;letter-spacing:.03em;color:var(--c,var(--amber))}
+#conf .conf-tk-x{font-family:var(--f-pixel);font-size:11px;cursor:pointer;color:var(--fg);background:var(--bg-2);border:2px solid var(--line);padding:2px 8px 2px;box-shadow:2px 2px 0 var(--line);flex:0 0 auto}
+#conf .conf-tk-x:hover{background:var(--you);color:#1a0d0f}
+#conf .conf-tk-x:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--line)}
+#conf .conf-tk-x:focus-visible{outline:2px solid var(--matrix);outline-offset:3px}
+#conf .conf-tk-l{font-family:var(--f-display);font-size:22px;line-height:1.2;margin:4px 0 8px;overflow-wrap:anywhere}
+#conf .conf-tk-rows{display:grid;gap:4px;margin:0 0 8px}
+#conf .conf-tk-row{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:12.5px;padding:4px 8px;border:2px solid transparent;min-width:0}
+#conf .conf-tk-row .conf-tk-z{font-family:var(--f-pixel);font-size:10.5px;letter-spacing:.03em;color:var(--dim);min-width:76px;flex:0 0 auto}
+#conf .conf-tk-row .conf-tk-v{font-family:var(--f-pixel);font-variant-numeric:tabular-nums;font-size:12px;overflow-wrap:anywhere}
+#conf .conf-tk-row.is-cur{border-color:var(--amber);background:rgba(255,210,63,.10)}
+#conf .conf-tk-row.is-cur .conf-tk-z{color:var(--amber)}
+#conf .conf-plus{margin-left:5px;font-family:var(--f-pixel);font-size:9.5px;letter-spacing:.03em;padding:1px 4px 0;background:var(--claude);color:#1a0f0a;border:2px solid var(--line);vertical-align:middle;white-space:nowrap;display:inline-block;line-height:1.25}
+#conf .conf-tk-cd{font-family:var(--f-pixel);font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--amber);margin:0 0 4px}
+#conf .conf-tk-n{margin:0;font-size:12px;color:var(--muted)}
+#conf .conf-ics{margin-top:9px;font-family:var(--f-display);font-size:17px;cursor:pointer;color:#1a160a;background:var(--amber);border:2px solid var(--line);padding:5px 14px 6px;box-shadow:var(--shadow)}
+#conf .conf-ics:hover{filter:brightness(1.07)}
+#conf .conf-ics:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+#conf .conf-ics:focus-visible{outline:2px solid var(--matrix);outline-offset:3px}
+
+#conf .conf-lower{display:grid;gap:16px;margin-top:20px;grid-template-columns:minmax(0,1fr);min-width:0}
+@media (min-width:900px){#conf .conf-lower{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
+#conf .conf-panel{background:var(--panel);border:2px solid var(--line);box-shadow:var(--shadow);padding:12px;min-width:0}
+#conf .conf-rows{display:grid;gap:10px;min-width:0}
+#conf .conf-grp{display:grid;gap:4px;min-width:0}
+#conf .conf-grp-h{font-family:var(--f-pixel);font-size:11px;letter-spacing:.05em;color:var(--c,var(--fg));padding:2px 0 4px;border-bottom:2px solid var(--line);overflow-wrap:anywhere}
+#conf .conf-row{display:grid;grid-template-columns:minmax(0,1fr);gap:1px 8px;width:100%;text-align:left;font:inherit;color:var(--fg);background:var(--bg-2);border:2px solid var(--line);padding:5px 8px 5px;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+#conf .conf-row:hover{background:var(--panel-2)}
+#conf .conf-row:focus-visible{outline:2px solid var(--matrix);outline-offset:3px}
+#conf .conf-row.is-sel{outline:2px solid var(--amber);outline-offset:0}
+#conf .conf-row.conf-past{opacity:.55}
+#conf .conf-row-l{font-size:12.5px;line-height:1.35;min-width:0}
+#conf .conf-row-m{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;min-width:0}
+#conf .conf-kind{font-family:var(--f-pixel);font-size:9.5px;letter-spacing:.03em;padding:1px 4px 0;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);white-space:nowrap;line-height:1.35}
+#conf .conf-kind[data-k="deadline"]{background:var(--claude);color:#1a0f0a}
+#conf .conf-kind[data-k="notice"]{background:var(--panel);color:var(--fg);border:2px solid var(--fg)}
+#conf .conf-kind[data-k="event"]{background:var(--bg);color:var(--fg)}
+#conf .conf-kind[data-k="estimate"]{background:var(--deep);color:#0d1024;border-style:dashed;border-color:var(--fg)}
+#conf .conf-row-t{font-family:var(--f-pixel);font-variant-numeric:tabular-nums;font-size:10.5px;color:var(--muted);overflow-wrap:anywhere}
+@media (min-width:520px){#conf .conf-row{grid-template-columns:minmax(0,1fr) auto;align-items:baseline}}
+
+#conf .conf-checks{display:grid;gap:12px;min-width:0}
+#conf .conf-ck{background:var(--panel);border:2px solid var(--line);box-shadow:var(--shadow);padding:11px 12px;min-width:0;position:relative;overflow:hidden}
+#conf .conf-ck.is-done{border-color:var(--matrix);box-shadow:var(--shadow),inset 0 0 0 2px rgba(93,234,143,.35)}
+#conf .conf-ck-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;justify-content:space-between;min-width:0}
+#conf .conf-ck-h b{font-family:var(--f-pixel);font-weight:700;font-size:11.5px;letter-spacing:.04em;color:var(--c,var(--fg))}
+#conf .conf-ck-h span{font-family:var(--f-pixel);font-variant-numeric:tabular-nums;font-size:11px;color:var(--muted)}
+#conf .conf-ck.is-done .conf-ck-h span{color:var(--matrix)}
+#conf .conf-prog{height:10px;background:var(--bg);border:2px solid var(--line);margin:6px 0 8px;position:relative;overflow:hidden}
+#conf .conf-prog i{display:block;height:100%;width:0;background:repeating-linear-gradient(90deg,var(--matrix) 0 6px,rgba(93,234,143,.55) 6px 8px);transition:width .2s steps(4)}
+#conf .conf-ic{display:grid;gap:2px;min-width:0;position:relative;z-index:1}
+#conf .conf-ic label{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:start;font-size:12.5px;line-height:1.4;padding:3px 2px;cursor:pointer;overflow-wrap:anywhere}
+#conf .conf-ic input[type=checkbox]{appearance:none;-webkit-appearance:none;width:16px;height:16px;margin:2px 0 0;background:var(--bg);border:2px solid var(--line);box-shadow:2px 2px 0 rgba(0,0,0,.4);cursor:pointer;display:grid;place-items:center;flex:0 0 auto}
+#conf .conf-ic input[type=checkbox]:checked{background:var(--matrix)}
+#conf .conf-ic input[type=checkbox]:checked::after{content:"";width:7px;height:3px;border-left:3px solid #0d1a10;border-bottom:3px solid #0d1a10;transform:translateY(-2px) rotate(-45deg)}
+#conf .conf-ic label:has(input:checked) span{color:var(--dim);text-decoration:line-through}
+#conf .conf-ic input[type=checkbox]:focus-visible{outline:2px solid var(--matrix);outline-offset:2px}
+
+@media (prefers-reduced-motion:no-preference){
+  #conf .conf-ck.is-done::after{content:"✦ ✧ ✦ ✧ ✦";position:absolute;left:0;right:0;top:8px;text-align:center;font-family:var(--f-pixel);font-size:15px;color:var(--matrix);letter-spacing:.5em;pointer-events:none;text-shadow:0 0 8px var(--matrix);animation:conf-confetti 1s steps(5) forwards}
+}
+@keyframes conf-confetti{0%{opacity:0;transform:translateY(10px)}20%{opacity:1}100%{opacity:0;transform:translateY(-26px)}}
+
+#conf .conf-src{margin-top:20px;background:var(--bg-2);border:2px solid var(--line);padding:11px 12px;font-size:12px;color:var(--dim);display:grid;gap:5px;min-width:0;overflow-wrap:anywhere}
+#conf .conf-src b{font-family:var(--f-pixel);font-size:10.5px;letter-spacing:.05em;color:var(--muted)}
+#conf .conf-src a{color:var(--matrix);text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+#conf .conf-src a:hover{color:var(--amber)}
+#conf .conf-src ul{margin:0;padding-left:1.1em}
+@media (max-width:600px){
+  #conf .conf-ctl .conf-btn{font-size:16px}
+  #conf .conf-tk-row .conf-tk-z{min-width:64px}
+}
+</style>
+<nav class="hub" aria-label="页面视图切换">
+  <button class="hub-b" type="button" data-view="studio" aria-pressed="true">像素工作室 STUDIO</button>
+  <button class="hub-b" type="button" data-view="conf" aria-pressed="false">会议时间线 DEADLINES <span class="hub-badge" id="conf-badge" hidden>0d</span></button>
+</nav>
+<section id="conf" aria-label="会议投稿时间线">
+  <div class="conf-head">
+    <span class="conf-tag"><i></i>DEADLINE STATION · 投稿站台</span>
+    <h2>投稿站台时刻表</h2>
+    <p class="conf-lede">CVPR 2027 / RSS 2027 / ICLR 2028 的投稿节点；时间均为 23:59 AoE，另有注明的除外。切换时区看本地时间，点站牌开票。</p>
+  </div>
+
+  <div class="conf-ctl">
+    <span class="conf-lab" id="conf-tz-lab">时区 TIME ZONE</span>
+    <button class="conf-btn" type="button" data-tz="aoe" aria-pressed="false">AoE (UTC−12)</button>
+    <button class="conf-btn" type="button" data-tz="chicago" aria-pressed="true">芝加哥 Chicago</button>
+    <button class="conf-btn" type="button" data-tz="beijing" aria-pressed="false">北京 Beijing</button>
+    <span class="conf-zn-now" id="conf-zn-now" aria-live="polite"></span>
+    <button class="conf-btn conf-today" type="button" id="conf-today">回到今天</button>
+  </div>
+
+  <div id="conf-board" aria-label="站台发车牌"></div>
+
+  <div class="conf-boardwrap">
+    <div class="conf-boardwrap-h">
+      <b>DEPARTURES · 2026-10 → 2028-06</b>
+      <span>左右拖动 / 滑动看全程 · 点站牌看详情</span>
+    </div>
+    <div id="conf-track" tabindex="0" role="region" aria-label="会议时间线（可左右滚动）">
+      <div class="conf-inner" id="conf-inner"></div>
+    </div>
+    <div class="conf-key" aria-hidden="true">
+      <span><em class="k1"></em>截止 / 已确认</span>
+      <span><em class="k2"></em>结果通知</span>
+      <span><em class="k3"></em>预计 est.</span>
+      <span><em style="background:var(--you);border:0;width:2px"></em>今天</span>
+    </div>
+  </div>
+
+  <div id="conf-ticket" role="region" aria-label="会议条目详情" hidden></div>
+  <div id="conf-tip" class="conf-tip" role="tooltip" hidden></div>
+
+  <div class="conf-lower">
+    <div class="conf-panel">
+      <h3>时刻表 · TIMETABLE</h3>
+      <div id="conf-list" class="conf-rows"></div>
+    </div>
+    <div id="conf-checks" class="conf-checks" aria-label="投稿准备清单"></div>
+  </div>
+
+  <div class="conf-src">
+    <b>官网来源 SOURCES</b>
+    <ul>
+      <li><a href="https://cvpr.thecvf.com/Conferences/2027/CallForPapers" target="_blank" rel="noopener">CVPR 2027 Call for Papers</a></li>
+      <li><a href="https://roboticsconference.org/information/cfp/" target="_blank" rel="noopener">RSS 2027 Call for Papers</a></li>
+      <li><a href="https://iclr.cc" target="_blank" rel="noopener">ICLR（iclr.cc）</a></li>
+    </ul>
+    <div>最后核对 2026-10-22（官网发布新日期后以官网为准）</div>
+    <div>ICLR 2028 尚未公布，以上是按往届规律的预计，CFP 发布后到 iclr.cc 核对</div>
+  </div>
+</section>
+<script>
+(function(){
+'use strict';
+
+var KEY='pixelhub.conf.v1';
+var PPD=4, R0='2026-10-01', TRACK_W=2560;
+var TZS=['aoe','chicago','beijing'];
+var ZLAB={aoe:'AoE (UTC−12)',chicago:'芝加哥 Chicago',beijing:'北京 Beijing'};
+
+var CONFS=[
+  {id:'cvpr',name:'CVPR 2027',color:'--claude'},
+  {id:'rss',name:'RSS 2027',color:'--matrix'},
+  {id:'iclr',name:'ICLR 2028',color:'--deep'}
+];
+
+var MS=[
+  {id:'cvpr-abstract',c:'cvpr',kind:'deadline',s:'2026-11-10',t:'论文注册 + 摘要 Abstract',note:'在 OpenReview 注册论文并填写摘要和全部作者',summary:'论文注册 + 摘要截止',file:'cvpr2027-abstract'},
+  {id:'cvpr-paper',c:'cvpr',kind:'deadline',s:'2026-11-16',t:'论文提交 Paper',note:'主办方表示不会延期',summary:'论文提交截止',file:'cvpr2027-paper'},
+  {id:'cvpr-supp',c:'cvpr',kind:'deadline',s:'2026-11-23',t:'补充材料 Supplementary',note:'正文截止一周后',summary:'补充材料截止',file:'cvpr2027-supp'},
+  {id:'cvpr-rebuttal',c:'cvpr',kind:'estimate',s:'2027-01-20',e:'2027-02-01',t:'审稿意见 + Rebuttal（预计）',note:'官方未公布，按往年规律预计'},
+  {id:'cvpr-decision',c:'cvpr',kind:'estimate',s:'2027-02-15',e:'2027-03-01',t:'录用结果（预计）',note:'官方未公布，按往年规律预计'},
+  {id:'cvpr-conf',c:'cvpr',kind:'event',s:'2027-06-20',e:'2027-06-25',t:'CVPR 2027 · 西雅图',note:'2027 年 6 月，具体日期待确认',tent:true},
+  {id:'rss-abstract',c:'rss',kind:'deadline',s:'2026-12-04',t:'扩展摘要 Extended abstract',note:'两阶段审稿的第一步，格式要求见 RSS CFP',summary:'扩展摘要截止',file:'rss2027-abstract'},
+  {id:'rss-stage1',c:'rss',kind:'notice',s:'2027-02-05',t:'第一阶段结果 Stage-1 decision',note:'一周后（2/12）是 rebuttal 截止',summary:'第一阶段结果'},
+  {id:'rss-rebuttal',c:'rss',kind:'deadline',s:'2027-02-12',t:'Rebuttal 截止',note:'预留 2/05–2/12 的完整 rebuttal 时间',summary:'Rebuttal 截止',file:'rss2027-rebuttal'},
+  {id:'rss-stage2',c:'rss',kind:'notice',s:'2027-02-26',t:'第二阶段结果 Stage-2 decision',note:'通过者受邀执行 Extension Charter',summary:'第二阶段结果'},
+  {id:'rss-final',c:'rss',kind:'deadline',s:'2027-04-16',t:'终稿 Final paper',note:'camera-ready 终稿，具体要求见 RSS 官网',summary:'终稿截止',file:'rss2027-final'},
+  {id:'rss-accept',c:'rss',kind:'notice',s:'2027-04-30',t:'录用通知 Acceptance',note:'会议 7/6–7/11 在雅典',summary:'录用通知'},
+  {id:'rss-conf',c:'rss',kind:'event',s:'2027-07-06',e:'2027-07-11',t:'RSS 2027 · 希腊雅典 Athens',note:'会议日以官网日程为准'},
+  {id:'iclr-abstract',c:'iclr',kind:'estimate',s:'2027-09-17',e:'2027-09-28',t:'摘要（预计）Abstract est.',note:'参考 ICLR 2027：摘要 2026-09-18'},
+  {id:'iclr-paper',c:'iclr',kind:'estimate',s:'2027-09-24',e:'2027-10-05',t:'全文（预计）Paper est.',note:'近几届全文截止在 9/24–10/5 之间；ICLR 2027 是 2026-09-25'},
+  {id:'iclr-conf',c:'iclr',kind:'estimate',s:'2028-04-20',e:'2028-05-15',t:'ICLR 2028 会议（预计）',note:'约 2028 年 4 月底 / 5 月；ICLR 2027 是 4/26–30'}
+];
+
+var CHECKS={
+  cvpr:['OpenReview 资料补全（机构邮箱、DBLP、利益冲突）','11/10 前注册论文：标题、摘要、全部作者','匿名化自查：致谢、代码链接、自引措辞','11/16 前上传正文 PDF（不延期，提前一天交）','11/23 前补充材料（视频压缩、同样匿名）'],
+  rss:['按 RSS 模板写好扩展摘要（12/04）','读懂两阶段审稿和 Extension Charter','预留 2/05–2/12 的 rebuttal 时间','收到第二阶段邀请后按 Charter 完成扩展','4/16 前终稿 camera-ready','雅典行程：签证、机票、住宿'],
+  iclr:['关注 iclr.cc，CFP 发布后核对日期','按 9 月中下旬摘要倒排实验计划','OpenReview 资料保持最新','预留 2 周写作 + 1 周内部审阅']
+};
+
+var DAY=86400000, WEEK=['周日','周一','周二','周三','周四','周五','周六'];
+var BY={}, CONF={};
+var state={tz:'chicago',hidden:{},checks:{}};
+var selected=null, lastFocus=null, iv=null, slow=0;
+/* one tick per second, scheduled just after each whole second so the shown value
+   (always recomputed from Date.now()) changes on the second */
+function scheduleTick(){
+  if(iv)clearTimeout(iv);
+  iv=setTimeout(function(){
+    tickCountdowns(); refreshTicketCd();
+    if(++slow>=30){slow=0;updatePast();updateListTimes()}
+    scheduleTick();
+  },1000-Date.now()%1000+5);
+}
+var track, inner, walker, tip, ticket, listEl, checksEl, boardEl, badgeEl, znEl;
+
+/* ---------- dates ---------- */
+function pd(s){var p=String(s).split('-');return {y:+p[0],m:+p[1],d:+p[2]}}
+function utcOf(o){return Date.UTC(o.y,o.m-1,o.d)}
+function aoeInstant(s){var o=pd(s);return new Date(Date.UTC(o.y,o.m-1,o.d,23,59)+43200000)}
+function dateInst(s){var o=pd(s);return new Date(Date.UTC(o.y,o.m-1,o.d,12,0))}
+function pad2(n){return String(n).padStart(2,'0')}
+function ymd(o){return o.y+'-'+pad2(o.m)+'-'+pad2(o.d)}
+function dayIdx(s){var o=pd(s),b=pd(R0);return Math.round((utcOf(o)-utcOf(b))/DAY)}
+function xOf(s){return dayIdx(s)*PPD}
+function xToday(){return (Date.now()-utcOf(pd(R0)))/DAY*PPD}
+function zonedParts(inst,tz){
+  if(tz==='aoe'){var d=new Date(inst.getTime()-43200000);return {y:d.getUTCFullYear(),m:d.getUTCMonth()+1,d:d.getUTCDate(),H:d.getUTCHours(),M:d.getUTCMinutes(),abbr:'AoE'}}
+  var tzv=tz==='chicago'?'America/Chicago':'Asia/Shanghai';
+  var parts;
+  try{
+    parts=new Intl.DateTimeFormat('en-US',{timeZone:tzv,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZoneName:'short'}).formatToParts(inst);
+  }catch(e){var u=new Date(inst.getTime()+(tz==='chicago'?-5:8)*3600000);return {y:u.getUTCFullYear(),m:u.getUTCMonth()+1,d:u.getUTCDate(),H:u.getUTCHours(),M:u.getUTCMinutes(),abbr:tz==='chicago'?'CST':'北京'}}
+  var out={y:0,m:0,d:0,H:0,M:0,abbr:''};
+  for(var i=0;i<parts.length;i++){var p=parts[i];
+    if(p.type==='year')out.y=+p.value;
+    else if(p.type==='month')out.m=+p.value;
+    else if(p.type==='day')out.d=+p.value;
+    else if(p.type==='hour')out.H=+p.value;
+    else if(p.type==='minute')out.M=+p.value;
+    else if(p.type==='timeZoneName')out.abbr=p.value;
+  }
+  if(tz==='beijing')out.abbr='北京';
+  return out;
+}
+function zstr(p){return p.y+'-'+pad2(p.m)+'-'+pad2(p.d)+' '+pad2(p.H)+':'+pad2(p.M)}
+function zoneAbbr(tz){if(tz==='aoe')return 'AoE';try{return zonedParts(new Date(),tz).abbr}catch(e){return ''}}
+function isTimeMs(m){return m.kind==='deadline'}
+function msBase(m){return isTimeMs(m)?aoeInstant(m.s):dateInst(m.s)}
+function msEnd(m){return m.e?dateInst(m.e):msBase(m)}
+function isPast(m){return msEnd(m).getTime()<Date.now()}
+function kindName(k){return k==='deadline'?'截止':k==='notice'?'结果':k==='event'?'会议':'预计'}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* ---------- storage ---------- */
+function load(){
+  try{
+    var raw=localStorage.getItem(KEY); if(!raw)return;
+    var o=JSON.parse(raw); if(!o||typeof o!=='object')return;
+    if(TZS.indexOf(o.tz)>=0)state.tz=o.tz;
+    if(o.hidden&&typeof o.hidden==='object'){for(var i=0;i<CONFS.length;i++){var id=CONFS[i].id;if(o.hidden[id])state.hidden[id]=true}}
+    if(o.checks&&typeof o.checks==='object'){var ks=Object.keys(o.checks);for(var j=0;j<ks.length;j++){if(o.checks[ks[j]])state.checks[ks[j]]=true}}
+  }catch(e){}
+}
+function save(){
+  try{
+    var hidden={},checks={};
+    for(var i=0;i<CONFS.length;i++){var id=CONFS[i].id;if(state.hidden[id])hidden[id]=true}
+    var ks=Object.keys(state.checks);
+    for(var j=0;j<ks.length;j++){if(state.checks[ks[j]])checks[ks[j]]=true}
+    localStorage.setItem(KEY,JSON.stringify({tz:state.tz,hidden:hidden,checks:checks}));
+  }catch(e){}
+}
+/* ---------- countdown ---------- */
+function cdParts(ms){var s=Math.max(0,Math.floor(ms/1000));return {sec:s,d:Math.floor(s/86400),h:Math.floor(s%86400/3600),m:Math.floor(s%3600/60),s:s%60}}
+function cdHTML(conf,extra){
+  return '<span class="conf-cd"'+(extra||'')+' data-countdown="'+conf+'">'+
+    '<span class="conf-cell" data-unit="d">0</span><span class="conf-cd-u">天</span>'+
+    '<span class="conf-cell" data-unit="h">00</span><span class="conf-cd-u">:</span>'+
+    '<span class="conf-cell" data-unit="m">00</span><span class="conf-cd-u">:</span>'+
+    '<span class="conf-cell" data-unit="s">00</span></span>';
+}
+function setCdEl(el,parts){
+  var u=el.querySelectorAll('[data-unit]');
+  if(!u.length)return;
+  if(u[0])u[0].textContent=String(parts.d);
+  if(u[1])u[1].textContent=pad2(parts.h);
+  if(u[2])u[2].textContent=pad2(parts.m);
+  if(u[3])u[3].textContent=pad2(parts.s);
+  el.classList.toggle('conf-hot',parts.sec<86400);
+}
+function tickCountdowns(){
+  var now=Date.now();
+  for(var i=0;i<CONFS.length;i++){
+    var c=CONFS[i], els=document.querySelectorAll('[data-countdown="'+c.id+'"]'), nx=nextOf(c.id);
+    for(var k=0;k<els.length;k++){
+      var el=els[k];
+      if(el.getAttribute('data-estimate')==='true'){
+        var sec=Math.floor((aoeInstant(EST_START).getTime()-now)/1000);
+        el.textContent='~'+Math.max(0,Math.floor(sec/86400))+' 天';
+        continue;
+      }
+      if(!nx){el.textContent='—';continue}
+      setCdEl(el,cdParts(nx.t-now));
+    }
+  }
+  updateNextCard();
+  updateBadge();
+}
+function updateListTimes(){
+  if(!listEl)return;
+  var nodes=listEl.querySelectorAll('[data-ms-row]');
+  for(var i=0;i<nodes.length;i++){
+    var m=byId(nodes[i].getAttribute('data-ms-row'));
+    if(!m)continue;
+    var cell=nodes[i].querySelector('[data-ms-time]');
+    if(cell)cell.textContent=timeCell(m).txt;
+    nodes[i].classList.toggle('conf-past',isPast(m));
+  }
+}
+function updateBadge(){
+  var nx=nextAny();
+  if(!badgeEl)return;
+  if(!nx){badgeEl.hidden=true;return}
+  var d=Math.max(0,Math.floor((nx.t-Date.now())/86400000));
+  badgeEl.textContent=(d<1?'<1d':d+'d');
+  badgeEl.hidden=false;
+}
+function byId(id){for(var i=0;i<MS.length;i++)if(MS[i].id===id)return MS[i];return null}
+
+/* ---------- board ---------- */
+function nextOf(c){
+  var best=null,now=Date.now();
+  for(var i=0;i<MS.length;i++){var m=MS[i];if(m.c!==c||m.kind!=='deadline')continue;var t=aoeInstant(m.s).getTime();if(t<=now)continue;if(!best||t<best.t)best={m:m,t:t}}
+  return best;
+}
+function nextAny(){
+  var best=null,now=Date.now(),vm=visibleMs();
+  for(var i=0;i<vm.length;i++){var m=vm[i];if(m.kind!=='deadline')continue;var t=aoeInstant(m.s).getTime();if(t<=now)continue;if(!best||t<best.t)best={m:m,t:t}}
+  return best;
+}
+function visibleMs(){return MS.filter(function(m){return !state.hidden[m.c]})}
+function colorVar(c){return c==='cvpr'?'--claude':c==='rss'?'--matrix':'--deep'}
+function timeLabel(inst){
+  var z=state.tz, p=zonedParts(inst,z), a=zonedParts(inst,'aoe');
+  var plus=(p.y!==a.y||p.m!==a.m||p.d!==a.d)?'+1d':'';
+  return {txt:zstr(p),abbr:p.abbr,plus:plus,zone:ZLAB[z].split(' ')[0]};
+}
+function renderBoard(){
+  var nx=nextAny();
+  var h='';
+  if(nx){
+    var tl=timeLabel(aoeInstant(nx.m.s));
+    h+='<button type="button" class="conf-next" id="conf-next" data-ms="'+nx.m.id+'">'+nextInner(nx)+'</button>';
+  }else{
+    h+='<div class="conf-next" id="conf-next">'+nextInner(null)+'</div>';
+  }
+  h+='<div class="conf-board" style="display:contents">';
+  for(var i=0;i<CONFS.length;i++){
+    var c=CONFS[i],cc=CONF[c.id],nxc=nextOf(c.id);
+    h+='<div class="conf-card'+(state.hidden[c.id]?' is-hidden':'')+'" data-card="'+c.id+'" style="--c:var('+cc.color+')">'+
+      '<div class="conf-card-h"><h3>'+esc(cc.name)+'</h3></div>';
+    if(nxc){
+      var t=timeLabel(aoeInstant(nxc.m.s));
+      h+='<p class="conf-card-lbl">'+esc(nxc.m.t)+'</p>'+
+         '<p class="conf-card-t">'+t.txt+'<span class="conf-zn">'+esc(t.abbr)+(t.plus?' <span class="conf-plus">'+t.plus+'</span>':'')+'</span></p>';
+    }else{
+      h+='<p class="conf-card-lbl">暂无已确认截止</p><p class="conf-card-t">ICLR 2028 尚未公布</p>';
+    }
+    h+=cdHTML(c.id,c.id==='iclr'?' data-estimate="true"':'');
+    if(c.id==='iclr')h+='<p class="conf-note">最早可能 · 预计（全文窗口起点 '+EST_START+' AoE）</p>';
+    h+='<button type="button" class="conf-lever" data-toggle="'+c.id+'" aria-pressed="'+(state.hidden[c.id]?'false':'true')+'"><i></i>车道 '+esc(cc.name.split(' ')[0])+' <span data-lever-t>'+(state.hidden[c.id]?'隐藏':'显示')+'</span></button>';
+    h+='</div>';
+  }
+  h+='</div>';
+  boardEl.innerHTML=h;
+  tickCountdowns();
+}
+function nextInner(nx){
+  if(!nx)return '<div class="conf-next-k">NEXT DEADLINE · 下一班</div><p class="conf-next-t">全部截止已过</p><p class="conf-next-s">回看时刻表</p>';
+  var c=CONF[nx.m.c],tl=timeLabel(aoeInstant(nx.m.s));
+  return '<div class="conf-next-k">NEXT DEADLINE · 下一班 <span class="conf-kind" data-k="deadline">截止</span></div>'+
+    '<p class="conf-next-t">'+esc(c.name)+' · '+esc(nx.m.t)+'</p>'+
+    '<p class="conf-next-s">'+tl.txt+' <span class="conf-zn">'+esc(tl.abbr)+(tl.plus?' <span class="conf-plus">'+tl.plus+'</span>':'')+'</span></p>'+
+    cdHTML(nx.m.c,'');
+}
+function updateNextCard(){
+  var cur=document.querySelector('#conf-next');
+  if(!cur)return;
+  var nx=nextAny();
+  if((cur.getAttribute('data-ms')||'')!==(nx?nx.m.id:'')){renderBoard();return}
+  if(!nx)return;
+  var el=cur.querySelector('[data-countdown="'+nx.m.c+'"]');
+  if(el)setCdEl(el,cdParts(nx.t-Date.now()));
+}
+var EST_START='2027-09-24';
+
+/* ---------- timeline ---------- */
+function monthMarks(){
+  var out=[],y=2026,m=10;
+  while(y<2028||m<=6){
+    out.push({y:y,m:m,x:dayIdx(y+'-'+pad2(m)+'-01')*PPD});
+    m++; if(m>12){m=1;y++}
+  }
+  return out;
+}
+function renderTrack(){
+  var h='';
+  var mm=monthMarks();
+  h+='<div class="conf-ruler">';
+  for(var i=0;i<mm.length;i++){
+    var isYr=mm[i].m===1;
+    h+='<span class="conf-mon'+(isYr?' conf-yr':'')+'" style="left:'+mm[i].x+'px">'+mm[i].y+'-'+pad2(mm[i].m)+'</span>';
+    h+='<span class="conf-tick'+(isYr?' conf-yr':'')+'" style="left:'+mm[i].x+'px"></span>';
+  }
+  h+='</div>';
+  // lanes (visible ones stacked from the top)
+  var shown=0;
+  for(var j=0;j<CONFS.length;j++){
+    var c=CONFS[j];
+    if(state.hidden[c.id])continue;
+    h+='<div class="conf-lane" data-lane="'+c.id+'" style="top:'+(64+shown*86)+'px;--c:var('+colorVar(c.id)+')">';
+    shown++;
+    h+='<span class="conf-lane-n"><i></i>'+esc(c.name)+(c.id==='iclr'?' · 预计 2027-09 →':'')+'</span>';
+    var ms=MS.filter(function(m){return m.c===c.id});
+    /* two label rows: each label goes to the row that has been free the longest,
+       and the label before it in that row is cut to end before it starts */
+    var placed=[], lastIn=[null,null];
+    for(var k=0;k<ms.length;k++){
+      var m=ms[k],x=xOf(m.s), w=m.e?(dayIdx(m.e)-dayIdx(m.s))*PPD:14;
+      var left=m.e?x:x-7;
+      var row=!lastIn[0]?0:!lastIn[1]?1:(lastIn[0].left<=lastIn[1].left?0:1);
+      var it={m:m,left:left,w:w,row:row,maxw:134};
+      if(lastIn[row])lastIn[row].maxw=Math.max(40,Math.min(134,left-lastIn[row].left-6));
+      lastIn[row]=it;
+      placed.push(it);
+    }
+    for(var q=0;q<placed.length;q++){
+      h+=markerHTML(placed[q].m,placed[q].left,placed[q].w,placed[q].row,placed[q].maxw);
+    }
+    h+='</div>';
+  }
+  // today
+  h+='<div class="conf-nowline" data-today style="left:'+xToday().toFixed(1)+'px"></div>';
+  // walker
+  h+='<div class="conf-walker" aria-hidden="true"></div>';
+  inner.innerHTML=h;
+  inner.style.height=(64+Math.max(1,shown)*86+12)+'px';
+  walker=inner.querySelector('.conf-walker');
+  paintWalker(0,0);
+}
+/* short labels under the timeline markers (the full label is in the tooltip / ticket) */
+var SHORT={'cvpr-abstract':'摘要','cvpr-paper':'论文提交','cvpr-supp':'补充材料','cvpr-rebuttal':'Rebuttal 预计','cvpr-decision':'结果 预计','cvpr-conf':'CVPR · 西雅图?',
+  'rss-abstract':'扩展摘要','rss-stage1':'一阶段结果','rss-rebuttal':'Rebuttal','rss-stage2':'二阶段结果','rss-final':'终稿','rss-accept':'录用通知','rss-conf':'RSS · 雅典',
+  'iclr-abstract':'摘要 预计','iclr-paper':'全文 预计','iclr-conf':'ICLR 会议 预计'};
+function markerHTML(m,left,w,row,maxw){
+  var past=isPast(m)?' conf-past':'';
+  var estAttr=m.kind==='estimate'?' data-estimate="true"':'';
+  var tent=m.tent?' conf-tent':'';
+  var sel=selected&&selected.id===m.id?' is-sel':'';
+  var style='left:'+left+'px;';
+  if(m.e)style+='width:'+Math.max(18,w)+'px;';
+  var cls='conf-ms'+past+tent+sel;
+  var lab=esc(SHORT[m.id]||m.t);
+  var out='<button type="button" class="'+cls+'" data-ms="'+m.id+'" data-conf="'+m.c+'" data-kind="'+m.kind+'"'+estAttr+' style="'+style+'">';
+  if(m.e){
+    out+='<i class="conf-bar"></i><i class="conf-flag"></i>';
+  }else{
+    out+='<i class="conf-sign"></i>';
+  }
+  out+='<span class="conf-ms-lab'+(row?' conf-lab-lo':'')+'" style="max-width:'+(maxw||134)+'px">'+lab+'</span>';
+  out+='</button>';
+  return out;
+}
+function updatePast(){
+  var nodes=inner.querySelectorAll('.conf-ms');
+  for(var i=0;i<nodes.length;i++){
+    var m=byId(nodes[i].getAttribute('data-ms'));
+    if(!m)continue;
+    nodes[i].classList.toggle('conf-past',isPast(m));
+  }
+}
+/* ---------- walker ---------- */
+var wState={x:0,target:0,from:0,t0:0,dur:0,moving:false,raf:0,frame:0,tAcc:0,row:2};
+function reduced(){try{return window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}}
+function spriteURL(){
+  try{ if(typeof A!=='undefined'&&A&&A.char5) return A.char5; }catch(e){}
+  return '';
+}
+/* sprite sheet: 16x32 frames, row 0 faces down, 1 up, 2 right (mirrored for left); drawn at 2x */
+function paintWalker(frame,row){
+  if(!walker)return;
+  if(!walker.dataset.sheet){
+    var url=spriteURL();
+    walker.dataset.sheet=url?'1':'0';
+    if(url)walker.style.backgroundImage='url("'+url+'")';
+    else walker.classList.add('conf-walker-plain');
+  }
+  var left=row===3, r=left?2:row;
+  walker.style.backgroundPosition=(-frame*32)+'px '+(-r*64)+'px';
+  walker.style.transform=left?'scaleX(-1)':'';
+  walker.dataset.row=String(row);walker.dataset.frame=String(frame);
+}
+function walkTo(px,maxMs){
+  if(!walker)return;
+  var start=wState.x,target=px;
+  if(reduced()||Math.abs(target-start)<1){setWalker(target);paintWalker(0,0);return}
+  wState.from=start;wState.target=target;wState.t0=performance.now();
+  wState.dur=Math.min(maxMs||1200,Math.max(220,Math.abs(target-start)*2.6));
+  wState.moving=true;wState.lastT=0;
+  wState.row=target>start?2:3;
+  if(!wState.raf)wState.raf=requestAnimationFrame(walkStep);
+}
+function setWalker(px){
+  wState.x=px;wState.moving=false;
+  if(walker)walker.style.left=(px-16)+'px';
+}
+function walkStep(now){
+  wState.raf=0;
+  if(!wState.moving){
+    setWalker(wState.target);
+    paintWalker(0,0);
+    return;
+  }
+  var t=Math.min(1,(now-wState.t0)/(wState.dur||1));
+  var e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  var x=wState.from+(wState.target-wState.from)*e;
+  var dt=now-(wState.lastT||now); wState.lastT=now;
+  wState.tAcc+=dt;
+  if(wState.tAcc>125){wState.tAcc=0;wState.frame=(wState.frame+1)%4}
+  setWalker(x);
+  paintWalker([0,1,2,1][wState.frame],wState.row);
+  if(t<1){wState.raf=requestAnimationFrame(walkStep);return}
+  wState.moving=false;
+  setWalker(wState.target);
+  paintWalker(0,0);
+}
+/* ---------- timetable list ---------- */
+function timeCell(m){
+  if(isTimeMs(m)){
+    var p=zonedParts(aoeInstant(m.s),state.tz),a=zonedParts(aoeInstant(m.s),'aoe');
+    var plus=(p.y!==a.y||p.m!==a.m||p.d!==a.d);
+    return {txt:zstr(p)+' '+p.abbr+(plus?' +1d':''),past:isPast(m)};
+  }
+  if(m.e)return {txt:m.s+' → '+m.e};
+  return {txt:m.s};
+}
+function renderList(){
+  var h='';
+  for(var i=0;i<CONFS.length;i++){
+    var c=CONFS[i];
+    if(state.hidden[c.id])continue;
+    var ms=MS.filter(function(m){return m.c===c.id});
+    h+='<div class="conf-grp" style="--c:var('+colorVar(c.id)+')"><div class="conf-grp-h">'+esc(c.name)+' · '+ms.length+' 个节点</div>';
+    for(var k=0;k<ms.length;k++){
+      var m=ms[k],tc=timeCell(m);
+      h+='<button type="button" class="conf-row'+(isPast(m)?' conf-past':'')+(selected&&selected.id===m.id?' is-sel':'')+'" data-ms-row="'+m.id+'">'+
+        '<span class="conf-row-l">'+esc(m.t)+(m.tent?' <span class="conf-plus">?</span>':'')+'</span>'+
+        '<span class="conf-row-m"><span class="conf-kind" data-k="'+m.kind+'">'+kindName(m.kind)+'</span>'+
+        '<span class="conf-row-t" data-ms-time="'+m.id+'">'+esc(tc.txt)+'</span></span>'+
+        '</button>';
+    }
+    h+='</div>';
+  }
+  listEl.innerHTML=h;
+}
+/* ---------- tooltip ---------- */
+function showTip(m,el){
+  if(!el)return;
+  var c=CONF[m.c], h='<b style="--c:var('+colorVar(m.c)+')">'+esc(c.name)+'</b>';
+  h+='<div>'+esc(m.t)+(m.kind==='estimate'?' <span class="conf-est">预计 est.</span>':'')+'</div>';
+  if(isTimeMs(m)){
+    var p=zonedParts(aoeInstant(m.s),state.tz),a=zonedParts(aoeInstant(m.s),'aoe');
+    var plus=(p.y!==a.y||p.m!==a.m||p.d!==a.d);
+    h+='<div class="conf-tip-t">'+zstr(p)+' '+esc(p.abbr)+(plus?' <span class="conf-plus">+1d</span>':'')+'</div>';
+  }else if(m.e){
+    h+='<div class="conf-tip-t">'+m.s+' → '+m.e+'</div>';
+  }else{
+    h+='<div class="conf-tip-t">'+m.s+'</div>';
+  }
+  if(m.note)h+='<div class="conf-tip-n">'+esc(m.note)+'</div>';
+  tip.innerHTML=h; tip.hidden=false;
+  var r=el.getBoundingClientRect(),tr=tip.getBoundingClientRect();
+  var vw=window.innerWidth,vh=window.innerHeight;
+  var x=r.left+r.width/2-tr.width/2, y=r.top-tr.height-10;
+  if(y<8)y=r.bottom+10;
+  if(x<8)x=8;
+  if(x+tr.width>vw-8)x=Math.max(8,vw-8-tr.width);
+  if(y+tr.height>vh-8)y=Math.max(8,vh-8-tr.height);
+  tip.style.left=Math.round(x)+'px'; tip.style.top=Math.round(y)+'px';
+}
+function hideTip(){tip.hidden=true;tip.innerHTML=''}
+/* ---------- ics ---------- */
+function escICS(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n')}
+function icsFor(m){
+  var c=CONF[m.c],src=CONF_SRC[m.c]||'';
+  var L=[];
+  L.push('BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//pixelhub//conf//ZH','CALSCALE:GREGORIAN');
+  L.push('BEGIN:VEVENT');
+  L.push('UID:'+m.id+'@pixelhub.example');
+  L.push('DTSTAMP:'+utcStamp(new Date()));
+  if(isTimeMs(m)){
+    var end=aoeInstant(m.s),start=new Date(end.getTime()-3600000);
+    L.push('DTSTART:'+utcStamp(start));
+    L.push('DTEND:'+utcStamp(end));
+  }else if(m.e){
+    L.push('DTSTART;VALUE=DATE:'+m.s.replace(/-/g,''));
+    L.push('DTEND;VALUE=DATE:'+datePlus1(m.e));
+  }else{
+    L.push('DTSTART;VALUE=DATE:'+m.s.replace(/-/g,''));
+    L.push('DTEND;VALUE=DATE:'+datePlus1(m.s));
+  }
+  var sum=c.name+' · '+m.summary;
+  if(isTimeMs(m))sum+=' (23:59 AoE)';
+  L.push('SUMMARY:'+escICS(sum));
+  L.push('DESCRIPTION:'+escICS((m.note||'')+(src?'\n'+src:'')));
+  L.push('URL:'+src);
+  L.push('BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY','DESCRIPTION:'+escICS(c.name+' · '+m.summary),'END:VALARM');
+  L.push('END:VEVENT','END:VCALENDAR');
+  return L.map(foldICS).join('\r\n')+'\r\n';
+}
+var CONF_SRC={cvpr:'https://cvpr.thecvf.com/Conferences/2027/CallForPapers',rss:'https://roboticsconference.org/information/cfp/',iclr:'https://iclr.cc'};
+/* RFC 5545: lines longer than 75 octets continue on the next line after CRLF + space */
+function foldICS(line){
+  var out='',cur='',n=0;
+  for(var i=0;i<line.length;i++){
+    var ch=line[i],cp=line.charCodeAt(i);
+    if(cp>=0xD800&&cp<=0xDBFF&&i+1<line.length){ch+=line[++i]}
+    var b=unescape(encodeURIComponent(ch)).length;
+    if(n+b>(out?74:75)){out+=(out?'\r\n ':'')+cur;cur='';n=0}
+    cur+=ch;n+=b;
+  }
+  return out?out+'\r\n '+cur:cur;
+}
+function utcStamp(d){return d.getUTCFullYear()+pad2(d.getUTCMonth()+1)+pad2(d.getUTCDate())+'T'+pad2(d.getUTCHours())+pad2(d.getUTCMinutes())+pad2(d.getUTCSeconds())+'Z'}
+function datePlus1(s){
+  var o=pd(s),d=new Date(utcOf(o)+DAY);
+  return d.getUTCFullYear()+pad2(d.getUTCMonth()+1)+pad2(d.getUTCDate());
+}
+function downloadICS(m){
+  try{
+    var blob=new Blob([icsFor(m)],{type:'text/calendar;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url; a.download=(m.file||m.id)+'.ics';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);a.remove()},1000);
+  }catch(e){}
+}
+/* ---------- ticket ---------- */
+function cdText(m){
+  var end=msEnd(m).getTime(),diff=end-Date.now();
+  if(diff<=0)return '已过';
+  var p=cdParts(diff);
+  return '还有 '+p.d+' 天 '+pad2(p.h)+':'+pad2(p.m)+':'+pad2(p.s);
+}
+function renderTicket(){
+  if(!selected){ticket.hidden=true;ticket.innerHTML='';return}
+  var m=selected,c=CONF[m.c];
+  var h='<div class="conf-tk-h"><b style="--c:var('+colorVar(m.c)+')">'+esc(c.name)+' · '+kindName(m.kind)+'</b>'+
+    '<button type="button" class="conf-tk-x" data-close aria-label="关闭详情">关闭 ✕</button></div>';
+  h+='<div class="conf-tk-l">'+esc(m.t)+(m.kind==='estimate'||m.tent?' <span class="conf-est">预计 est.</span>':'')+'</div>';
+  h+='<div class="conf-tk-rows">';
+  for(var i=0;i<TZS.length;i++){
+    var z=TZS[i],cur=z===state.tz;
+    if(isTimeMs(m)){
+      var p=zonedParts(aoeInstant(m.s),z),a=zonedParts(aoeInstant(m.s),'aoe');
+      var plus=(p.y!==a.y||p.m!==a.m||p.d!==a.d);
+      h+='<div class="conf-tk-row'+(cur?' is-cur':'')+'" data-tz-row="'+z+'"><span class="conf-tk-z">'+esc(ZLAB[z])+'</span>'+
+        '<span class="conf-tk-v">'+zstr(p)+' '+esc(p.abbr)+(plus?' <span class="conf-plus">+1d</span>':'')+'</span></div>';
+    }else{
+      h+='<div class="conf-tk-row'+(cur?' is-cur':'')+'" data-tz-row="'+z+'"><span class="conf-tk-z">'+esc(ZLAB[z])+'</span>'+
+        '<span class="conf-tk-v">'+(m.e?m.s+' → '+m.e:m.s)+'</span></div>';
+    }
+  }
+  h+='</div>';
+  h+='<p class="conf-tk-cd" data-tk-cd>'+cdText(m)+'</p>';
+  if(m.note)h+='<p class="conf-tk-n">'+esc(m.note)+'</p>';
+  if(m.kind==='deadline'||m.kind==='notice')h+='<button type="button" class="conf-ics" data-ics>加入日历 .ics</button>';
+  ticket.innerHTML=h; ticket.hidden=false;
+}
+function refreshTicketCd(){
+  if(!selected||ticket.hidden)return;
+  var el=ticket.querySelector('[data-tk-cd]');
+  if(el)el.textContent=cdText(selected);
+}
+function selectMs(id,walk){
+  var m=byId(id); if(!m)return;
+  selected=m; lastFocus=document.activeElement;
+  renderTicket(); renderList();
+  var nodes=inner.querySelectorAll('.conf-ms');
+  for(var i=0;i<nodes.length;i++)nodes[i].classList.toggle('is-sel',nodes[i].getAttribute('data-ms')===id);
+  if(walk!==false&&walker){
+    var tgt=xOf(m.s)+(m.e?(dayIdx(m.e)-dayIdx(m.s))*PPD/2:0);
+    walkTo(tgt,1200);
+  }
+}
+function closeTicket(){
+  if(!selected)return;
+  selected=null; renderTicket(); renderList();
+  var nodes=inner.querySelectorAll('.conf-ms');
+  for(var i=0;i<nodes.length;i++)nodes[i].classList.remove('is-sel');
+  if(walker)walkTo(xToday(),1500);
+  if(lastFocus&&lastFocus.focus){try{lastFocus.focus()}catch(e){}}
+}
+function syncAll(){
+  renderBoard(); renderList(); renderTicket();
+  var ts=document.querySelectorAll('[data-tz]');
+  for(var i=0;i<ts.length;i++)ts[i].setAttribute('aria-pressed',ts[i].getAttribute('data-tz')===state.tz?'true':'false');
+  if(znEl)znEl.textContent='当前 '+zoneAbbr(state.tz);
+  tickCountdowns();
+}
+/* ---------- checklists ---------- */
+function renderChecks(){
+  var h='';
+  for(var i=0;i<CONFS.length;i++){
+    var c=CONFS[i],items=CHECKS[c.id]||[],done=0;
+    for(var k=0;k<items.length;k++)if(state.checks[c.id+'-'+k])done++;
+    var pct=items.length?Math.round(done/items.length*100):0;
+    h+='<div class="conf-ck'+(items.length&&done===items.length?' is-done':'')+'" data-checklist="'+c.id+'" style="--c:var('+colorVar(c.id)+')">'+
+      '<div class="conf-ck-h"><b>'+esc(c.name)+' 准备清单</b><span data-prog>'+done+'/'+items.length+'</span></div>'+
+      '<div class="conf-prog"><i style="width:'+pct+'%"></i></div>'+
+      '<div class="conf-ic">';
+    for(var j=0;j<items.length;j++){
+      var id=c.id+'-'+j,ck=state.checks[id]?' checked':'';
+      h+='<label for="'+id+'"><input type="checkbox" id="'+id+'" data-check="'+id+'"'+ck+'><span>'+esc(items[j])+'</span></label>';
+    }
+    h+='</div></div>';
+  }
+  checksEl.innerHTML=h;
+}
+function updateCheckPanel(cid){
+  var panel=checksEl.querySelector('[data-checklist="'+cid+'"]');
+  if(!panel)return;
+  var items=CHECKS[cid]||[],done=0;
+  for(var k=0;k<items.length;k++)if(state.checks[cid+'-'+k])done++;
+  var all=items.length&&done===items.length;
+  var was=panel.classList.contains('is-done');
+  panel.classList.toggle('is-done',all);
+  var pr=panel.querySelector('[data-prog]');
+  if(pr)pr.textContent=done+'/'+items.length;
+  var bar=panel.querySelector('.conf-prog i');
+  if(bar)bar.style.width=(items.length?Math.round(done/items.length*100):0)+'%';
+  return {all:all,was:was};
+}
+function onCheck(ev){
+  var el=ev.target;
+  if(!el||!el.getAttribute||el.type!=='checkbox')return;
+  var id=el.getAttribute('data-check');
+  if(!id)return;
+  var cid=id.split('-')[0];
+  if(el.checked)state.checks[id]=true; else delete state.checks[id];
+  save();
+  var r=updateCheckPanel(cid);
+  if(r&&r.all&&!r.was&&!reduced()){
+    var p=checksEl.querySelector('[data-checklist="'+cid+'"]');
+    if(p){p.classList.remove('is-done');void p.offsetWidth;p.classList.add('is-done')}
+  }
+}
+/* ---------- view switching ---------- */
+var ORIG_TITLE=null;
+function setView(v,push){
+  var conf=v==='conf';
+  document.body.setAttribute('data-view',conf?'conf':'studio');
+  var bs=document.querySelectorAll('.hub [data-view]');
+  for(var i=0;i<bs.length;i++)bs[i].setAttribute('aria-pressed',bs[i].getAttribute('data-view')===v?'true':'false');
+  if(ORIG_TITLE===null)ORIG_TITLE=document.title;
+  document.title=conf?'会议时间线 · AI 像素工作室':ORIG_TITLE;
+  try{
+    if(conf){if(location.hash!=='#conf')history.replaceState(null,'','#conf')}
+    else{var u=location.pathname+location.search;history.replaceState(null,'',u)}
+  }catch(e){}
+  if(conf){
+    if(track)track.scrollLeft=Math.max(0,xToday()-80);
+    if(walker){setWalker(0);paintWalker(0,2);walkTo(xToday(),1500)}
+    updateBadge();
+  }else{
+    try{window.dispatchEvent(new Event('resize'))}catch(e){}
+  }
+}
+function onHash(){
+  setView(location.hash==='#conf'?'conf':'studio',false);
+}
+/* ---------- events ---------- */
+function onDocClick(ev){
+  var t=ev.target;
+  if(!t||!t.closest)return;
+  var hubB=t.closest('.hub [data-view]');
+  if(hubB){setView(hubB.getAttribute('data-view'));hideTip();return}
+  var tzB=t.closest('[data-tz]');
+  if(tzB){state.tz=tzB.getAttribute('data-tz');save();syncAll();renderList();if(selected)renderTicket();return}
+  if(t.closest('#conf-today')){goToday();return}
+  var tg=t.closest('[data-toggle]');
+  if(tg){
+    var id=tg.getAttribute('data-toggle');
+    if(state.hidden[id])delete state.hidden[id]; else state.hidden[id]=true;
+    save(); applyToggle(); return;
+  }
+  var mk=t.closest('.conf-ms');
+  if(mk){selectMs(mk.getAttribute('data-ms'));hideTip();return}
+  var rw=t.closest('[data-ms-row]');
+  if(rw){selectMs(rw.getAttribute('data-ms-row'));return}
+  var nxt=t.closest('#conf-next');
+  if(nxt&&nxt.getAttribute('data-ms')){selectMs(nxt.getAttribute('data-ms'));return}
+  if(t.closest('[data-ics]')&&selected){downloadICS(selected);return}
+  if(t.closest('[data-close]')){closeTicket();return}
+}
+function applyToggle(){
+  for(var i=0;i<CONFS.length;i++){
+    var c=CONFS[i],hid=!!state.hidden[c.id];
+    var lane=inner.querySelector('[data-lane="'+c.id+'"]');
+    if(lane)lane.style.display=hid?'none':'';
+    var card=boardEl.querySelector('[data-card="'+c.id+'"]');
+    if(card)card.classList.toggle('is-hidden',hid);
+    var btn=boardEl.querySelector('[data-toggle="'+c.id+'"]');
+    if(btn){btn.setAttribute('aria-pressed',hid?'false':'true');
+      var lt=btn.querySelector('[data-lever-t]');
+      if(lt)lt.textContent=hid?'隐藏':'显示';
+    }
+  }
+  renderTrack2();
+  renderList();
+  updateNextCard();
+  updateBadge();
+}
+/* re-render the whole board + track after a toggle (lanes come and go) */
+function renderTrack2(){
+  var sel=selected?selected.id:null;
+  renderTrack();
+  var bs=document.querySelectorAll('.conf-ms');
+  for(var i=0;i<bs.length;i++)if(bs[i].getAttribute('data-ms')===sel)bs[i].classList.add('is-sel');
+  if(walker){setWalker(wState.moving?wState.x:(wState.target||xToday()));paintWalker(0,0)}
+}
+function goToday(){
+  var t=xToday();
+  if(track)track.scrollLeft=Math.max(0,t-80);
+  if(walker)walkTo(t,1500);
+  hideTip();
+}
+function onDocOver(ev){
+  var t=ev.target;
+  if(!t||!t.closest)return;
+  var mk=t.closest('.conf-ms');
+  if(mk){var m=byId(mk.getAttribute('data-ms'));if(m)showTip(m,mk);return}
+  hideTip();
+}
+function onDocOut(ev){
+  if(!ev.relatedTarget){hideTip();return}
+}
+function onDocFocus(ev){
+  var t=ev.target;
+  if(t&&t.classList&&t.classList.contains('conf-ms')){var m=byId(t.getAttribute('data-ms'));if(m)showTip(m,t)}
+}
+function onDocBlur(ev){
+  if(ev.target&&ev.target.classList&&ev.target.classList.contains('conf-ms'))hideTip();
+}
+function onKey(ev){
+  if(ev.key==='Escape'&&selected){ev.preventDefault();closeTicket()}
+}
+/* ---------- init ---------- */
+function init(){
+  boardEl=document.getElementById('conf-board');
+  track=document.getElementById('conf-track');
+  inner=document.getElementById('conf-inner');
+  ticket=document.getElementById('conf-ticket');
+  tip=document.getElementById('conf-tip');
+  listEl=document.getElementById('conf-list');
+  checksEl=document.getElementById('conf-checks');
+  badgeEl=document.getElementById('conf-badge');
+  znEl=document.getElementById('conf-zn-now');
+  ORIG_TITLE=document.title;
+  for(var i=0;i<MS.length;i++)BY[MS[i].id]=MS[i];
+  for(var j=0;j<CONFS.length;j++)CONF[CONFS[j].id]=CONFS[j];
+  load();
+  renderBoard();
+  renderTrack();
+  renderList();
+  renderChecks();
+  renderTicket();
+  var ts=document.querySelectorAll('[data-tz]');
+  for(var k=0;k<ts.length;k++)ts[k].setAttribute('aria-pressed',ts[k].getAttribute('data-tz')===state.tz?'true':'false');
+  if(znEl)znEl.textContent='当前 '+zoneAbbr(state.tz);
+  tickCountdowns();
+  document.addEventListener('click',onDocClick);
+  document.addEventListener('mouseover',onDocOver);
+  document.addEventListener('mouseout',onDocOut);
+  document.addEventListener('focusin',onDocFocus);
+  document.addEventListener('focusout',onDocBlur);
+  document.addEventListener('keydown',onKey);
+  document.addEventListener('change',onCheck);
+  window.addEventListener('hashchange',onHash);
+  window.addEventListener('resize',function(){if(tip&&!tip.hidden)hideTip()});
+  scheduleTick();
+  onHash();
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}
+else init();
+})();
+</script>
+<!--CONF-END-->
   <header>
     <span class="tag"><i></i>STUDIO ONLINE · 我的 AI 工作流</span>
     <h1><b>老大 Claude</b> 的像素工作室</h1>
