@@ -148,7 +148,7 @@ footer a{color:var(--muted)}
   <header>
     <span class="tag"><i></i>STUDIO ONLINE · 我的 AI 工作流</span>
     <h1><b>老大 Claude</b> 的像素工作室</h1>
-    <p class="lede"><strong>Claude</strong> 坐镇主位接需求、拆任务、审结果；<strong>子 Agent</strong> 被派出去时会在工位上"刷"地出现，干完就消失；<strong>GPT Codex</strong> 守着双屏写代码；<strong>DeepSeek</strong> 接手翻译、文案、总结这类一问一答的文字活，交回的草稿由 Claude 检查后再用。</p>
+    <p class="lede"><strong>Claude</strong> 坐镇主位接需求、拆任务、审结果；<strong>子 Agent</strong> 被派出去时会在工位上"刷"地出现，干完就消失；<strong>GPT Codex</strong> 守着双屏写代码；<strong>DeepSeek</strong> 接手翻译、文案、总结这类文字活，还通过 opencode 给机器人仿真任务写代码初稿，交回的草稿都由 Claude 检查后再用。</p>
     <div class="controls">
       <div role="tablist" aria-label="选择工作流" style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn" role="tab" data-flow="web" aria-selected="true">网页开发</button>
@@ -202,8 +202,8 @@ footer a{color:var(--muted)}
       <article class="card">
         <div class="ava" data-sheet="deep"></div>
         <div><h3>DeepSeek <span class="badge b-on">ON DUTY</span></h3>
-          <p>便宜的一问一答文字活交给它，帮 Claude 省额度。它不能读仓库、改文件、跑测试，交回的都是草稿，Claude 检查后再用，每次都记一笔质量评级。</p>
-          <ul><li>翻译初稿、精简文案</li><li>总结长文档、长日志</li><li>造测试数据、格式转换</li><li>截图初筛、头脑风暴</li></ul></div>
+          <p>便宜的一问一答文字活交给它，帮 Claude 省额度；走 API 时它不能读仓库、改文件、跑测试。10 月 21 日起，它还在机器人仿真项目里通过 opencode（deepseek-v4-pro）照模板写任务代码、测试和文档初稿。交回的都是草稿，Claude 派子 Agent 审查、改好后才用，每次都记一笔质量评级。</p>
+          <ul><li>翻译初稿、精简文案</li><li>总结长文档、长日志</li><li>造测试数据、格式转换</li><li>截图初筛、头脑风暴</li><li>仿真任务代码初稿（首单：两趟搬重水瓶，约 39 分钟、1.3 美元；审出 5 个真问题，1 个严重，首跑前修好）</li></ul></div>
       </article>
     </div>
   </section>
@@ -251,7 +251,7 @@ footer a{color:var(--muted)}
   <!--AI-RULES-END-->
 
   <footer>
-    <span>按我的实际分工绘制：目前在岗的是 Claude、它的子 Agent 和 DeepSeek（文字活）；GPT Codex 额度用完，10 月 27 日回来。</span>
+    <span>按我的实际分工绘制：目前在岗的是 Claude、它的子 Agent 和 DeepSeek（文字活、仿真任务代码初稿）；GPT Codex 额度用完，10 月 27 日回来。</span>
     <span>像素角色与家具来自 <a href="https://github.com/pablodelucca/pixel-agents" target="_blank" rel="noopener">Pixel Agents</a>（MIT），角色基于 JIK-A-4 的 <a href="https://jik-a-4.itch.io/metrocity-free-topdown-character-pack" target="_blank" rel="noopener">MetroCity</a>（CC0）。</span>
   </footer>
 </div>
@@ -406,7 +406,7 @@ function render(time){
 var overlay=document.getElementById('overlay');
 function el(cls,html){var e=document.createElement('div');e.className=cls;if(html!=null)e.innerHTML=html;overlay.appendChild(e);return e}
 function place(e,x,y){e.style.left=(x/W*100)+'%';e.style.top=(y/H*100)+'%'}
-[['CLAUDE · 老大','claude',176,99],['SUB-AGENTS · 子 Agent','sub',64,158],['CODEX','',276,158],['DEEPSEEK · 文字活','deep',300,226],['YOU · 你','you',176,229]].forEach(function(n){place(el('name '+n[1],n[0]),n[2],n[3])});
+[['CLAUDE · 老大','claude',176,99],['SUB-AGENTS · 子 Agent','sub',64,158],['CODEX','',276,158],['DEEPSEEK · 写初稿','deep',300,226],['YOU · 你','you',176,229]].forEach(function(n){place(el('name '+n[1],n[0]),n[2],n[3])});
 var bubbles={};
 Object.keys(ch).forEach(function(k){bubbles[k]=el('bubble'+(k==='claude'||k==='deep'?' '+k:''))});
 function headY(c){return c.y+(c.dir==='down'||c.dir==='up'?1:1)}
@@ -557,9 +557,10 @@ var flows={
   robot:{name:'机器人仿真任务',steps:[
     {title:'你定任务',who:'YOU → CLAUDE',d:'告诉 Claude 想让机器人做什么，比如把一瓶水送到对面桌。',run:function(t){return userToClaude(t,'做个新任务！')}},
     {title:'Claude 定规格',who:'CLAUDE',d:'找最像的已验证任务当模板，定好场景、动作和验收判据（判据不放宽）。',run:function(t){return claudeThink(t,'找模板！')}},
-    {title:'子 Agent 写代码',who:'CLAUDE → SUB ×1',d:'一个子 Agent 照模板写代码和 CPU 测试，写完下线；Codex 有额度时也可以交给 Codex。',run:function(t){return dispatch(t,1,'去写代码！','type','收到！').then(function(){if(t===tok)return report(t,1,'写好了！')})}},
-    {title:'子 Agent 挑错',who:'CLAUDE → SUB ×1',d:'另召唤一个子 Agent，专找会让仿真失败、或让“成功”不可信的问题。',run:function(t){return dispatch(t,1,'去挑错！','read','开查！')}},
-    {title:'挑错结果回传',who:'SUB → CLAUDE',d:'子 Agent 报告查到的问题后下线，Claude 改掉。',pre:pre(1,'read'),run:function(t){return report(t,1,'有 1 个问题！')}},
+    {title:'DeepSeek 写代码初稿',who:'CLAUDE → DEEPSEEK',d:'照模板、拼已有任务就能做的活，交给 DeepSeek（deepseek-v4-pro，用 opencode 驱动）写任务代码、CPU 测试和文档初稿。',run:function(t){return toDeep(t,'写初稿！','开写！')}},
+    {title:'初稿交回',who:'DEEPSEEK → CLAUDE',d:'DeepSeek 交回初稿；没审过的初稿一律不上 GPU。',pre:preDeep,run:function(t){return deepBack(t,'初稿好了！','先审再说')}},
+    {title:'子 Agent 审查',who:'CLAUDE → SUB ×1',d:'Claude 召唤一个子 Agent 逐行审初稿，专找会让仿真失败、或让“成功”不可信的问题。',run:function(t){return dispatch(t,1,'去审查！','read','开查！')}},
+    {title:'审查结果回传',who:'SUB → CLAUDE',d:'子 Agent 报告问题后下线，Claude 全部改好（首单审出 5 个真问题，1 个严重）。',pre:pre(1,'read'),run:function(t){return report(t,1,'有 5 个问题！')}},
     {title:'GPU 跑仿真',who:'CLAUDE',d:'先看共享机器上有没有别人在用 GPU，再把仿真排进队列；失败就按实测数据找原因、改完再跑。',run:function(t){return claudeThink(t,'排 GPU！')}},
     {title:'DeepSeek 压缩日志',who:'CLAUDE → DEEPSEEK',d:'仿真日志又长又杂，先交给 DeepSeek 总结成要点（成没成功、报错、关键数值），Claude 不用读整份。',run:function(t){return toDeep(t,'日志太长啦！','我来压缩！')}},
     {title:'日志摘要交回',who:'DEEPSEEK → CLAUDE',d:'DeepSeek 交回摘要；Claude 拿它对照原始日志里的关键行核实后，才下结论。',pre:preDeep,run:function(t){return deepBack(t,'要点在这！','我核对一下')}},
